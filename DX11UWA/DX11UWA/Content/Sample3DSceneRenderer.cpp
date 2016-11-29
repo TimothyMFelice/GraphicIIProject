@@ -2,6 +2,7 @@
 #include "Sample3DSceneRenderer.h"
 
 #include "..\Common\DirectXHelper.h"
+#include "ModelLoader.h"
 
 using namespace DX11UWA;
 
@@ -53,6 +54,7 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources(void)
 	XMMATRIX orientationMatrix = XMLoadFloat4x4(&orientation);
 
 	XMStoreFloat4x4(&m_constantBufferData.projection, XMMatrixTranspose(perspectiveMatrix * orientationMatrix));
+	XMStoreFloat4x4(&m_PconstantBufferData.projection, XMMatrixTranspose(perspectiveMatrix * orientationMatrix));
 
 	// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
 	static const XMVECTORF32 eye = { 0.0f, 0.7f, -1.5f, 0.0f };
@@ -61,6 +63,7 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources(void)
 
 	XMStoreFloat4x4(&m_camera, XMMatrixInverse(nullptr, XMMatrixLookAtLH(eye, at, up)));
 	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtLH(eye, at, up)));
+	XMStoreFloat4x4(&m_PconstantBufferData.view, XMMatrixTranspose(XMMatrixLookAtLH(eye, at, up)));
 }
 
 // Called once per frame, rotates the cube and calculates the model and view matrices.
@@ -74,6 +77,9 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 		float radians = static_cast<float>(fmod(totalRotation, XM_2PI));
 
 		Rotate(radians);
+
+		XMStoreFloat4x4(&m_PconstantBufferData.model, XMMatrixTranspose(XMMatrixIdentity()));
+
 	}
 
 
@@ -236,6 +242,35 @@ void Sample3DSceneRenderer::Render(void)
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	// Draw the objects.
 	context->DrawIndexed(m_indexCount, 0, 0);
+
+
+	//////////////////////////////////////////////////////////////
+	//PLANE
+	//////////////////////////////////////////////////////////////
+	XMStoreFloat4x4(&m_PconstantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_camera))));
+
+	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_PconstantBufferData, 0, 0, 0);
+
+	context->IASetVertexBuffers(0, 1, m_PvertexBuffer.GetAddressOf(), &stride, &offset);
+	context->IASetIndexBuffer(m_PindexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+
+	context->VSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
+
+	context->DrawIndexed(m_PindexCount, 0, 0);
+
+	//////////////////////////////////////////////////////////////
+	//Model Loader
+	//////////////////////////////////////////////////////////////
+	XMStoreFloat4x4(&m_PconstantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_camera))));
+
+	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_PconstantBufferData, 0, 0, 0);
+
+	context->IASetVertexBuffers(0, 1, m_PvertexBuffer.GetAddressOf(), &stride, &offset);
+	context->IASetIndexBuffer(m_PindexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+
+	context->VSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
+
+	context->DrawIndexed(m_PindexCount, 0, 0);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
@@ -331,6 +366,116 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	{
 		m_loadingComplete = true;
 	});
+
+
+//////////////////////////////////////////////////////////////
+//PLANE
+//////////////////////////////////////////////////////////////
+	// Once both shaders are loaded, create the mesh.
+	auto createPlaneTask = (createPSTask && createVSTask).then([this]()
+	{
+#define SIZE 1.0f
+		// Load mesh vertices. Each vertex has a position and a color.
+		static const VertexPositionColor planeVertices[] =
+		{
+			{ XMFLOAT3(-SIZE,  -0.51f, -SIZE), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+			{ XMFLOAT3(-SIZE,  -0.51f,  SIZE), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+			{ XMFLOAT3(SIZE,   -0.51f, -SIZE), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+			{ XMFLOAT3(SIZE,   -0.51f,  SIZE), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+		};
+
+		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
+		vertexBufferData.pSysMem = planeVertices;
+		vertexBufferData.SysMemPitch = 0;
+		vertexBufferData.SysMemSlicePitch = 0;
+		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(planeVertices), D3D11_BIND_VERTEX_BUFFER);
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &m_PvertexBuffer));
+
+		// Load mesh indices. Each trio of indices represents
+		// a triangle to be rendered on the screen.
+		// For example: 0,2,1 means that the vertices with indexes
+		// 0, 2 and 1 from the vertex buffer compose the 
+		// first triangle of this mesh.
+		static const unsigned short planeIndices[] =
+		{
+			0,3,2,
+			0,1,3,
+
+			3,1,0,
+			3,0,2,
+		};
+
+		m_PindexCount = ARRAYSIZE(planeIndices);
+
+		D3D11_SUBRESOURCE_DATA indexBufferData = { 0 };
+		indexBufferData.pSysMem = planeIndices;
+		indexBufferData.SysMemPitch = 0;
+		indexBufferData.SysMemSlicePitch = 0;
+		CD3D11_BUFFER_DESC indexBufferDesc(sizeof(planeIndices), D3D11_BIND_INDEX_BUFFER);
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_PindexBuffer));
+	});
+
+	// Once the cube is loaded, the object is ready to be rendered.
+	createPlaneTask.then([this]()
+	{
+		m_loadingComplete = true;
+	});
+
+//////////////////////////////////////////////////////////////
+//Model Loader
+//////////////////////////////////////////////////////////////
+	auto createModelLoderTask = (createPSTask && createVSTask).then([this]()
+	{
+		std::vector<XMFLOAT3> vertices;
+		std::vector<XMFLOAT2> uvs;
+		std::vector<XMFLOAT3> normals;
+		bool res = loadOBJ("test pyramid.obj", vertices, uvs, normals);
+
+		// Load mesh vertices. Each vertex has a position and a color.
+		static const VertexPositionColor planeVertices[] =
+		{
+			{ XMFLOAT3(-SIZE,  -0.51f, -SIZE), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+			{ XMFLOAT3(-SIZE,  -0.51f,  SIZE), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+			{ XMFLOAT3(SIZE,   -0.51f, -SIZE), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+			{ XMFLOAT3(SIZE,   -0.51f,  SIZE), XMFLOAT3(1.0f, 1.0f, 1.0f) },
+		};
+
+		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
+		vertexBufferData.pSysMem = planeVertices;
+		vertexBufferData.SysMemPitch = 0;
+		vertexBufferData.SysMemSlicePitch = 0;
+		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(planeVertices), D3D11_BIND_VERTEX_BUFFER);
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &m_PvertexBuffer));
+
+		// Load mesh indices. Each trio of indices represents
+		// a triangle to be rendered on the screen.
+		// For example: 0,2,1 means that the vertices with indexes
+		// 0, 2 and 1 from the vertex buffer compose the 
+		// first triangle of this mesh.
+		static const unsigned short planeIndices[] =
+		{
+			0,3,2,
+			0,1,3,
+
+			3,1,0,
+			3,0,2,
+		};
+
+		m_PindexCount = ARRAYSIZE(planeIndices);
+
+		D3D11_SUBRESOURCE_DATA indexBufferData = { 0 };
+		indexBufferData.pSysMem = planeIndices;
+		indexBufferData.SysMemPitch = 0;
+		indexBufferData.SysMemSlicePitch = 0;
+		CD3D11_BUFFER_DESC indexBufferDesc(sizeof(planeIndices), D3D11_BIND_INDEX_BUFFER);
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_PindexBuffer));
+	});
+
+	// Once the cube is loaded, the object is ready to be rendered.
+	createPlaneTask.then([this]()
+	{
+		m_loadingComplete = true;
+	});
 }
 
 void Sample3DSceneRenderer::ReleaseDeviceDependentResources(void)
@@ -342,4 +487,7 @@ void Sample3DSceneRenderer::ReleaseDeviceDependentResources(void)
 	m_constantBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_indexBuffer.Reset();
+
+	m_PvertexBuffer.Reset();
+	m_PindexBuffer.Reset();
 }

@@ -31,6 +31,7 @@ namespace DX11UWA
 
 		// TODO: Replace with your own content renderers.
 		std::unique_ptr<Sample3DSceneRenderer> m_sceneRenderer;
+		std::unique_ptr<Sample3DSceneRenderer> m_PsceneRenderer;
 		std::unique_ptr<SampleFpsTextRenderer> m_fpsTextRenderer;
 
 		// Rendering loop timer.

@@ -99,6 +99,9 @@
     <ClInclude Include="Common\StepTimer.h">
       <Filter>Common\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="ModelLoader.h">
+      <Filter>Content\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -118,5 +121,10 @@
     <FxCompile Include="Content\SampleVertexShader.hlsl">
       <Filter>Content\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Assets\test pyramid.obj">
+      <Filter>Assets</Filter>
+    </Object>
   </ItemGroup>
 </Project>
