@@ -1,3 +1,12 @@
+//////////////////////////////////////////////////////////////
+// Model Class was created during
+// Dan's offices hours
+// 1:00pm - 5:00pm | Nov 30, 2016
+//
+// During which multiple students work with
+// Dan to come up with a model loader
+//////////////////////////////////////////////////////////////
+
 #pragma once
 
 #include "Content\ShaderStructures.h"

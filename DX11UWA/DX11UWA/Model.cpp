@@ -1,10 +1,18 @@
+//////////////////////////////////////////////////////////////
+// Model Class was created during
+// Dan's offices hours
+// 1:00pm - 5:00pm | Nov 30, 2016
+//
+// During which multiple students work with
+// Dan to come up with a model loader
+//////////////////////////////////////////////////////////////
+
 #include "pch.h"
 #include "Model.h"
 #include <vector>
 #include <DirectXMath.h>
 
 using namespace DirectX;
-
 
 Model::Model(void)
 {
