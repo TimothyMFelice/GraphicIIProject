@@ -3,6 +3,7 @@
 #include "..\Common\DeviceResources.h"
 #include "ShaderStructures.h"
 #include "..\Common\StepTimer.h"
+#include "Model.h"
 
 
 namespace DX11UWA
@@ -77,6 +78,15 @@ namespace DX11UWA
 
 		// Matrix data member for the camera
 		DirectX::XMFLOAT4X4 m_camera;
+
+		//Model Infomation Goes HERE!
+		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_ModelinputLayout;
+		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_ModelvertexShader;
+		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_ModelpixelShader;
+
+		void DrawModel(ID3D11DeviceContext1* context, Model* model);
+
+		Model*										m_Pyramid;
 	};
 }
 

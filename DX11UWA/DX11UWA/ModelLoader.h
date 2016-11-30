@@ -5,12 +5,13 @@
 
 using namespace DirectX;
 
-bool loadOBJ(const char * path, std::vector<XMFLOAT3> & out_vertices, std::vector<XMFLOAT2> & out_uvs, std::vector<XMFLOAT3> & out_normals)
+bool loadOBJFromFile(const char * path, std::vector<XMFLOAT3> & out_verts, std::vector<unsigned int> & out_ind)
 {
-	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
+	std::vector<unsigned int> Indices, vertexIndices, uvIndices, normalIndices;
 	std::vector<XMFLOAT3>	  tmp_vertices;
 	std::vector<XMFLOAT2>	  tmp_uvs;
 	std::vector<XMFLOAT3>	  tmp_normals;
+	std::vector<XMFLOAT3>	  tmp_verts;
 
 	FILE * file;
 	fopen_s(&file, path, "r");
