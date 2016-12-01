@@ -11,6 +11,7 @@
 #include "Model.h"
 #include <vector>
 #include <DirectXMath.h>
+#include "Common\DDSTextureLoader.h"
 
 using namespace DirectX;
 
@@ -109,12 +110,14 @@ bool Model::LoadBuffers(const ID3D11Device* device)
 	return TRUE;
 }
 
-bool Model::LoadTexture(const ID3D11Device* device, const char * szTextureName)
+bool Model::LoadTexture(const ID3D11Device* device, const wchar_t * szTextureName)
 {
+	CreateDDSTextureFromFile(const_cast<ID3D11Device*>(device), szTextureName, NULL, this->m_ShaderResourceView.GetAddressOf());
+
 	return TRUE;
 }
 
-bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName, const char * szTextureName)
+bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName, const wchar_t * szTextureName)
 {
 	std::vector<XMFLOAT3>		m_vVertices,	 m_vTexcoords,		  m_vNormals;
 	std::vector<unsigned int>	m_vVertIndicies, m_vTexcoordIndicies, m_vNormIndicies;
@@ -140,18 +143,23 @@ bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName,
 		{
 			XMFLOAT3 vertex;
 			fscanf_s(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+			vertex.x = -vertex.x;
 			m_vVertices.push_back(vertex);
 		}
 		else if (strcmp(lineHeader, "vt") == 0)
 		{
 			XMFLOAT3 uv;
 			fscanf_s(file, "%f %f\n", &uv.x, &uv.y);
+
+			uv.y = 1 - uv.y;
+
 			m_vTexcoords.push_back(uv);
 		}
 		else if (strcmp(lineHeader, "vn") == 0)
 		{
 			XMFLOAT3 normal;
 			fscanf_s(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+			normal.x = -normal.x;
 			m_vNormals.push_back(normal);
 		}
 		else if (strcmp(lineHeader, "f") == 0)
@@ -168,14 +176,14 @@ bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName,
 				return false;
 			}
 			m_vVertIndicies.push_back(vertexIndex[0]);
-			m_vVertIndicies.push_back(vertexIndex[1]);
 			m_vVertIndicies.push_back(vertexIndex[2]);
+			m_vVertIndicies.push_back(vertexIndex[1]);
 			m_vTexcoordIndicies.push_back(uvIndex[0]);
-			m_vTexcoordIndicies.push_back(uvIndex[1]);
 			m_vTexcoordIndicies.push_back(uvIndex[2]);
+			m_vTexcoordIndicies.push_back(uvIndex[1]);
 			m_vNormIndicies.push_back(normalIndex[0]);
-			m_vNormIndicies.push_back(normalIndex[1]);
 			m_vNormIndicies.push_back(normalIndex[2]);
+			m_vNormIndicies.push_back(normalIndex[1]);
 		}
 	}
 
@@ -193,6 +201,9 @@ bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName,
 	}
 
 	if (!LoadBuffers(device))
+		return FALSE;
+	
+	if (!LoadTexture(device, szTextureName))
 		return FALSE;
 
 	return TRUE;

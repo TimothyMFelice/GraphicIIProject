@@ -31,9 +31,12 @@ private:
 
 	unsigned int										m_NumIndices;
 
+	DX11UWA::ModelViewProjectionConstantBuffer			m_ConstBufferData;
+
+
 	// Private functions
 	bool LoadBuffers(const ID3D11Device* device);
-	bool LoadTexture(const ID3D11Device* device, const char* szTextureName);
+	bool LoadTexture(const ID3D11Device* device, const wchar_t* szTextureName);
 
 public:
 	// Class trilogy
@@ -43,7 +46,7 @@ public:
 	Model& operator=(const Model& copy);
 
 	// Public Functions
-	bool LoadOBJFromFile(const ID3D11Device* device, const char* szFileName, const char* szTextureName);
+	bool LoadOBJFromFile(const ID3D11Device* device, const char* szFileName, const wchar_t* szTextureName);
 
 	// Accessors
 	inline ID3D11Buffer* GetVertexBuffer(void) { return m_VertexBuffer.Get(); }
@@ -61,6 +64,8 @@ public:
 
 	inline unsigned int GetNumIndicies(void) { return m_NumIndices; }
 
+	inline DX11UWA::ModelViewProjectionConstantBuffer GetConstBufferData(void) { return m_ConstBufferData; }
+
 	// Mutators
 	inline void SetVertexBuffer(const ID3D11Buffer* vertBuffer) { this->m_VertexBuffer = const_cast<ID3D11Buffer*>(vertBuffer); }
 	inline void SetIndexBuffer(const ID3D11Buffer* indexBuffer) { this->m_IndexBuffer = const_cast<ID3D11Buffer*>(indexBuffer); }
@@ -68,5 +73,7 @@ public:
 	inline void SetVertexShader(const ID3D11VertexShader* shader) { this->m_VertexShader = const_cast<ID3D11VertexShader*>(shader); }
 	inline void SetPixelShader(const ID3D11PixelShader* shader) { this->m_PixelShader = const_cast<ID3D11PixelShader*>(shader); }
 	inline void SetShaderResourceView(const ID3D11ShaderResourceView* srv) { this->m_ShaderResourceView = const_cast<ID3D11ShaderResourceView*>(srv); }
+
+	inline void SetConstBuffer(DX11UWA::ModelViewProjectionConstantBuffer data) { this->m_ConstBufferData = data; }
 
 };

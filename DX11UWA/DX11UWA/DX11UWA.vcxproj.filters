@@ -113,6 +113,21 @@
     <Image Include="Assets\StoreLogo.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\Diffuse_Fuzzy.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\TEX_Ambulance_Diff.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\concrete_dirtywhite_wall_seamless.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\kungFu_Panda_Tex.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Eye_Panda.dds">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
@@ -136,5 +151,19 @@
     <FxCompile Include="PS_Model_Shader.hlsl">
       <Filter>Content\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Assets\FuzzyGoomba.obj">
+      <Filter>Assets</Filter>
+    </Object>
+    <Object Include="Assets\BattleAmbulance.obj">
+      <Filter>Assets</Filter>
+    </Object>
+    <Object Include="Assets\KungFu_Panda.obj">
+      <Filter>Assets</Filter>
+    </Object>
+    <Object Include="Assets\KungFu_Panda_Eyes.obj">
+      <Filter>Assets</Filter>
+    </Object>
   </ItemGroup>
 </Project>

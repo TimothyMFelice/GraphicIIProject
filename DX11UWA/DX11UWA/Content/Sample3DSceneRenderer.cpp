@@ -68,23 +68,73 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources(void)
 // Called once per frame, rotates the cube and calculates the model and view matrices.
 void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 {
+	// Convert degrees to radians, then convert seconds to rotation angle
+	float radiansPerSecond = XMConvertToRadians(m_degreesPerSecond);
+	double totalRotation = timer.GetTotalSeconds() * radiansPerSecond;
+	float radians = static_cast<float>(fmod(totalRotation, XM_2PI));
+
 	if (!m_tracking)
 	{
-		// Convert degrees to radians, then convert seconds to rotation angle
-		float radiansPerSecond = XMConvertToRadians(m_degreesPerSecond);
-		double totalRotation = timer.GetTotalSeconds() * radiansPerSecond;
-		float radians = static_cast<float>(fmod(totalRotation, XM_2PI));
-
 		Rotate(radians);
-
-		XMStoreFloat4x4(&m_PconstantBufferData.model, XMMatrixTranspose(XMMatrixIdentity()));
-
 	}
 
+	// Update Plane
+	XMStoreFloat4x4(&m_PconstantBufferData.model, XMMatrixTranspose(XMMatrixIdentity()));
 
 	// Update or move camera here
 	UpdateCamera(timer, 2.0f, 0.75f);
 
+//////////////////////////////////////////////////////////////
+//Update Models
+//////////////////////////////////////////////////////////////
+	//Pyramid
+	ModelViewProjectionConstantBuffer data;
+	data.view = m_constantBufferData.view;
+	data.projection = m_constantBufferData.projection;
+
+	XMStoreFloat4x4(&data.model, XMMatrixTranspose(XMMatrixTranslation(3.0f, 0.0f, 0.0f)));
+	m_Pyramid->SetConstBuffer(data);
+
+	//Fuzzy Goomba
+	ModelViewProjectionConstantBuffer FuzzyData;
+	FuzzyData.view = m_constantBufferData.view;
+	FuzzyData.projection = m_constantBufferData.projection;
+
+	XMStoreFloat4x4(&FuzzyData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(-3.0f, -0.4f, 0.0f))));
+	m_FuzzyGoomba->SetConstBuffer(FuzzyData);
+
+	//Battle Ambulance
+	ModelViewProjectionConstantBuffer BattleData;
+	BattleData.view = m_constantBufferData.view;
+	BattleData.projection = m_constantBufferData.projection;
+
+	XMStoreFloat4x4(&BattleData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.5, 0.5, 0.5), XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(5.0f, -0.4f, 5.0f)))));
+	m_BattleAmbulance->SetConstBuffer(BattleData);
+
+	//KungFu Panda
+	ModelViewProjectionConstantBuffer PandaData;
+	PandaData.view = m_constantBufferData.view;
+	PandaData.projection = m_constantBufferData.projection;
+
+	XMStoreFloat4x4(&PandaData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5, 1.5, 1.5), XMMatrixMultiply(XMMatrixRotationY(180.0f), XMMatrixTranslation(0.0f, -0.5f, 5.0f)))));
+	m_KungFu_Panda->SetConstBuffer(PandaData);
+
+	//KungFu Panda Eye
+	ModelViewProjectionConstantBuffer PandaEyeData;
+	PandaEyeData.view = m_constantBufferData.view;
+	PandaEyeData.projection = m_constantBufferData.projection;
+
+	XMStoreFloat4x4(&PandaEyeData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5, 1.5, 1.5), XMMatrixMultiply(XMMatrixRotationY(180.0f), XMMatrixTranslation(0.0f, -0.5f, 5.0f)))));
+	m_KungFu_Panda_Eye->SetConstBuffer(PandaEyeData);
+
+
+	//UPDATE LIGHT
+	m_DIR_LightConstantBufferData.dir_color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_DIR_LightConstantBufferData.dir = XMFLOAT4(cos(radians), 0.0f, 1.0f, 0.0f);
+
+	m_POINT_LightConstantBufferData.point_color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
+	m_POINT_LightConstantBufferData.point_pos = XMFLOAT4(0.0f, cos(radians) * 5.0f, 0.0f, 1.0f);
+	m_POINT_LightConstantBufferData.point_radius = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 // Rotate the 3D cube model a set amount of radians.
@@ -179,7 +229,7 @@ void Sample3DSceneRenderer::DrawModel(ID3D11DeviceContext1* context, Model * mod
 		return;
 
 	// Prepare the constant buffer to send it to the graphics device.
-	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_constantBufferData, 0, 0, 0);
+	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &model->GetConstBufferData(), 0, 0, 0);
 	// Each vertex is one instance of the VertexPositionColor struct.
 	UINT stride = sizeof(VertexPositionUVNormal);
 	UINT offset = 0;
@@ -194,6 +244,18 @@ void Sample3DSceneRenderer::DrawModel(ID3D11DeviceContext1* context, Model * mod
 	context->VSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
 	// Attach our pixel shader.
 	context->PSSetShader(model->GetPixelShader(), nullptr, 0);
+	// Attach the srv to the pixel shader
+	context->PSSetShaderResources(0, 1, model->GetAddressOfShaderResourceView());
+	//DIR LIGHT
+	// Prepare the constant buffer to send it to the graphics device.
+	context->UpdateSubresource1(m_DIR_LightConstantBuffer.Get(), 0, NULL, &m_DIR_LightConstantBufferData, 0, 0, 0);
+	// Send the constant buffer for lighting
+	context->PSSetConstantBuffers1(0, 1, m_DIR_LightConstantBuffer.GetAddressOf(), nullptr, nullptr);
+	//POINT LIGHT
+	// Prepare the constant buffer to send it to the graphics device.
+	context->UpdateSubresource1(m_POINT_LightConstantBuffer.Get(), 0, NULL, &m_POINT_LightConstantBufferData, 0, 0, 0);
+	// Send the constant buffer for lighting
+	context->PSSetConstantBuffers1(1, 1, m_POINT_LightConstantBuffer.GetAddressOf(), nullptr, nullptr);
 	// Draw the objects.
 	context->DrawIndexed(model->GetNumIndicies(), 0, 0);
 }
@@ -264,6 +326,8 @@ void Sample3DSceneRenderer::Render(void)
 	context->VSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
 	// Attach our pixel shader.
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+	// Set Sampler State
+	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 	// Draw the objects.
 	context->DrawIndexed(m_indexCount, 0, 0);
 
@@ -287,6 +351,10 @@ void Sample3DSceneRenderer::Render(void)
 	//MODELS
 	//////////////////////////////////////////////////////////////
 	DrawModel(context, m_Pyramid);
+	DrawModel(context, m_FuzzyGoomba);
+	DrawModel(context, m_BattleAmbulance);
+	DrawModel(context, m_KungFu_Panda);
+	DrawModel(context, m_KungFu_Panda_Eye);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
@@ -348,24 +416,23 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 		// first triangle of this mesh.
 		static const unsigned short cubeIndices[] =
 		{
-			0
-			//0,1,2, // -x
-			//1,3,2,
+			0,1,2, // -x
+			1,3,2,
 
-			//4,6,5, // +x
-			//5,6,7,
+			4,6,5, // +x
+			5,6,7,
 
-			//0,5,1, // -y
-			//0,4,5,
+			0,5,1, // -y
+			0,4,5,
 
-			//2,7,6, // +y
-			//2,3,7,
+			2,7,6, // +y
+			2,3,7,
 
-			//0,6,4, // -z
-			//0,2,6,
+			0,6,4, // -z
+			0,2,6,
 
-			//1,7,3, // +z
-			//1,5,7,
+			1,7,3, // +z
+			1,5,7,
 		};
 
 		m_indexCount = ARRAYSIZE(cubeIndices);
@@ -390,7 +457,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	// Once both shaders are loaded, create the mesh.
 	auto createPlaneTask = (createPSTask && createVSTask).then([this]()
 	{
-#define SIZE 1.0f
+#define SIZE 10.0f
 		// Load mesh vertices. Each vertex has a position and a color.
 		static const VertexPositionColor planeVertices[] =
 		{
@@ -414,10 +481,10 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 		// first triangle of this mesh.
 		static const unsigned short planeIndices[] =
 		{
-			0,3,2,
+			0,3,2, //Top
 			0,1,3,
 
-			3,1,0,
+			3,1,0, //Bot
 			3,0,2,
 		};
 
@@ -431,20 +498,12 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_PindexBuffer));
 	});
 
-	// Once the cube is loaded, the object is ready to be rendered.
-	createPlaneTask.then([this]()
-	{
-		m_loadingComplete = true;
-	});
-
 //////////////////////////////////////////////////////////////
 //Model Loader
 //////////////////////////////////////////////////////////////
 	// Load shaders asynchronously.
 	auto loadModelVSTask = DX::ReadDataAsync(L"VS_Model_Shader.cso");
 	auto loadModelPSTask = DX::ReadDataAsync(L"PS_Model_Shader.cso");
-
-	m_Pyramid = new Model();
 
 	// After the vertex shader file is loaded, create the shader and input layout.
 	auto createModelVSTask = loadModelVSTask.then([this](const std::vector<byte>& fileData)
@@ -459,19 +518,71 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 		};
 
 		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateInputLayout(vertexDesc, ARRAYSIZE(vertexDesc), &fileData[0], fileData.size(), &m_ModelinputLayout));
-
-		m_Pyramid->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/test pyramid.obj", nullptr);
-		m_Pyramid->SetInputLayout(m_ModelinputLayout.Get());
-		m_Pyramid->SetVertexShader(m_ModelvertexShader.Get());
 	});
 
 	// After the pixel shader file is loaded, create the shader and constant buffer.
 	auto createModelPSTask = loadModelPSTask.then([this](const std::vector<byte>& fileData)
 	{
 		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreatePixelShader(&fileData[0], fileData.size(), nullptr, &m_ModelpixelShader));
-
-		m_Pyramid->SetPixelShader(m_ModelpixelShader.Get());
 	});
+
+	auto modelLoading = (createModelVSTask && createModelPSTask).then([this]()
+	{
+		m_Pyramid = new Model();
+		m_Pyramid->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/test pyramid.obj", L"Assets/concrete_dirtywhite_wall_seamless.dds");
+		m_Pyramid->SetInputLayout(m_ModelinputLayout.Get());
+		m_Pyramid->SetVertexShader(m_ModelvertexShader.Get());
+		m_Pyramid->SetPixelShader(m_ModelpixelShader.Get());
+
+		m_FuzzyGoomba = new Model();
+		m_FuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/FuzzyGoomba.obj", L"Assets/Diffuse_Fuzzy.dds");
+		m_FuzzyGoomba->SetInputLayout(m_ModelinputLayout.Get());
+		m_FuzzyGoomba->SetVertexShader(m_ModelvertexShader.Get());
+		m_FuzzyGoomba->SetPixelShader(m_ModelpixelShader.Get());
+
+		m_BattleAmbulance = new Model();
+		m_BattleAmbulance->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/BattleAmbulance.obj", L"Assets/TEX_Ambulance_Diff.dds");
+		m_BattleAmbulance->SetInputLayout(m_ModelinputLayout.Get());
+		m_BattleAmbulance->SetVertexShader(m_ModelvertexShader.Get());
+		m_BattleAmbulance->SetPixelShader(m_ModelpixelShader.Get());
+
+		m_KungFu_Panda = new Model();
+		m_KungFu_Panda->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/KungFu_Panda.obj", L"Assets/kungFu_Panda_Tex.dds");
+		m_KungFu_Panda->SetInputLayout(m_ModelinputLayout.Get());
+		m_KungFu_Panda->SetVertexShader(m_ModelvertexShader.Get());
+		m_KungFu_Panda->SetPixelShader(m_ModelpixelShader.Get());
+
+		m_KungFu_Panda_Eye = new Model();
+		m_KungFu_Panda_Eye->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/KungFu_Panda_Eyes.obj", L"Assets/Eye_Panda.dds");
+		m_KungFu_Panda_Eye->SetInputLayout(m_ModelinputLayout.Get());
+		m_KungFu_Panda_Eye->SetVertexShader(m_ModelvertexShader.Get());
+		m_KungFu_Panda_Eye->SetPixelShader(m_ModelpixelShader.Get());
+	});
+
+
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter	 = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 0.0f;
+	samplerDesc.BorderColor[1] = 0.0f;
+	samplerDesc.BorderColor[2] = 0.0f;
+	samplerDesc.BorderColor[3] = 0.0f;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	m_deviceResources->GetD3DDevice()->CreateSamplerState(&samplerDesc, &m_samplerState);
+
+	//Lighting
+	CD3D11_BUFFER_DESC DIR_LightConstantBufferDesc(sizeof(DIR_LIGHT), D3D11_BIND_CONSTANT_BUFFER);
+	DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&DIR_LightConstantBufferDesc, nullptr, &m_DIR_LightConstantBuffer));
+
+	CD3D11_BUFFER_DESC POINT_LightConstantBufferDesc(sizeof(POINT_LIGHT), D3D11_BIND_CONSTANT_BUFFER);
+	DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&POINT_LightConstantBufferDesc, nullptr, &m_POINT_LightConstantBuffer));
 }
 
 void Sample3DSceneRenderer::ReleaseDeviceDependentResources(void)
@@ -486,4 +597,6 @@ void Sample3DSceneRenderer::ReleaseDeviceDependentResources(void)
 
 	m_PvertexBuffer.Reset();
 	m_PindexBuffer.Reset();
+
+	m_samplerState.Reset();
 }

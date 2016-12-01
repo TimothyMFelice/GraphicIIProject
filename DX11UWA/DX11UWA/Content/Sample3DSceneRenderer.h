@@ -37,6 +37,16 @@ namespace DX11UWA
 		// Cached pointer to device resources.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 
+		// SamplerState
+		Microsoft::WRL::ComPtr<ID3D11SamplerState>			m_samplerState;
+
+		// DIR Lighting Stuff
+		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_DIR_LightConstantBuffer;
+		DIR_LIGHT										m_DIR_LightConstantBufferData;
+
+		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_POINT_LightConstantBuffer;
+		POINT_LIGHT										m_POINT_LightConstantBufferData;
+
 		// Direct3D resources for cube geometry.
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_inputLayout;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_vertexBuffer;
@@ -45,25 +55,18 @@ namespace DX11UWA
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pixelShader;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
 
-		// Direct3D resources for plane geometry.
-		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_PvertexBuffer;
-		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_PindexBuffer;
-
-		// Direct3D resources for model geometry.
-		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_MvertexBuffer;
-		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_MindexBuffer;
-
 		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;
 		uint32	m_indexCount;
 
+
+		// Direct3D resources for plane geometry.
+		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_PvertexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_PindexBuffer;
+
 		// System resources for plane geometry.
 		ModelViewProjectionConstantBuffer	m_PconstantBufferData;
 		uint32	m_PindexCount;
-
-		// System resources for plane geometry.
-		ModelViewProjectionConstantBuffer	m_MconstantBufferData;
-		uint32	m_MindexCount;
 
 		// Variables used with the rendering loop.
 		bool	m_loadingComplete;
@@ -87,6 +90,11 @@ namespace DX11UWA
 		void DrawModel(ID3D11DeviceContext1* context, Model* model);
 
 		Model*										m_Pyramid;
+		Model*										m_FuzzyGoomba;
+		Model*										m_BattleAmbulance;
+		Model*										m_KungFu_Panda;
+		Model*										m_KungFu_Panda_Eye;
+
 	};
 }
 

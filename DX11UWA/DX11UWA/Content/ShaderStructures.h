@@ -23,4 +23,17 @@ namespace DX11UWA
 		DirectX::XMFLOAT3 uv;
 		DirectX::XMFLOAT3 normal;
 	};
+
+	struct DIR_LIGHT
+	{
+		DirectX::XMFLOAT4 dir_color;
+		DirectX::XMFLOAT4 dir;
+	};
+
+	struct POINT_LIGHT
+	{
+		DirectX::XMFLOAT4 point_color;
+		DirectX::XMFLOAT4 point_pos;
+		DirectX::XMFLOAT4 point_radius;
+	};
 }
