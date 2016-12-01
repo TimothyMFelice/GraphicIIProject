@@ -42,6 +42,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 pointLightDir = normalize(point_pos.xyz - input.worldPos);
 	float pointLightRatio = saturate(dot(pointLightDir, wnrm));
 	float4 result = pointLightRatio * point_color * baseColor;
+    float Attenuation = 1 - saturate(length(point_pos.xyz - input.worldPos) / point_radius);
+    Attenuation = Attenuation * Attenuation;
 
-	return saturate(finalColor + result);
+    return saturate((result * Attenuation) + finalColor);
 }
