@@ -36,4 +36,14 @@ namespace DX11UWA
 		DirectX::XMFLOAT4 point_pos;
 		DirectX::XMFLOAT4 point_radius;
 	};
+
+	struct SPOT_LIGHT
+	{
+		DirectX::XMFLOAT4 spot_color;
+		DirectX::XMFLOAT4 spot_pos;
+		DirectX::XMFLOAT4 spot_coneDir;
+		DirectX::XMFLOAT4 spot_coneRatio;
+		DirectX::XMFLOAT4 spot_InnerRatio;
+		DirectX::XMFLOAT4 spot_OuterRatio;
+	};
 }

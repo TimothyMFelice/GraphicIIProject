@@ -27,6 +27,17 @@ cbuffer POINT_LIGHT : register(b1)
 	float4 point_radius;
 };
 
+// A constant buffer that stores the three basic column-major matrices for composing geometry.
+cbuffer SPOT_LIGHT : register(b2)
+{
+    float4 spot_color;
+    float4 spot_pos;
+    float4 spot_coneDir;
+    float4 spot_coneRatio;
+    float4 spot_InnerRatio;
+    float4 spot_OuterRatio;
+};
+
 // A pass-through function for the (interpolated) color data.
 float4 main(PixelShaderInput input) : SV_TARGET
 {
@@ -36,14 +47,25 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 lightDir = -normalize(dir);
 	float3 wnrm = normalize(input.norm);
 
+    // Dirctional Light
 	float3 directionalLight = saturate((dot(lightDir, wnrm)) * baseColor.xyz * dir_color.xyz);
-	float4 finalColor = float4(saturate(AmbientLight + directionalLight), baseColor.w);
+	float4 dirResult = float4(saturate(AmbientLight + directionalLight), baseColor.w);
 
+    // Point Light
 	float3 pointLightDir = normalize(point_pos.xyz - input.worldPos);
 	float pointLightRatio = saturate(dot(pointLightDir, wnrm));
-	float4 result = pointLightRatio * point_color * baseColor;
-    float Attenuation = 1 - saturate(length(point_pos.xyz - input.worldPos) / point_radius);
-    Attenuation = Attenuation * Attenuation;
+	float4 pointResult = pointLightRatio * point_color * baseColor;
+    float pointAttenuation = 1.0f - saturate(length(point_pos.xyz - input.worldPos) / point_radius);
+    pointAttenuation = pointAttenuation * pointAttenuation;
 
-    return saturate((result * Attenuation) + finalColor);
+    // Spot Light
+    float3 spotLightDir = normalize(spot_pos.xyz - input.worldPos);
+    float spotLightSurfaceRatio = saturate(dot(-spotLightDir, spot_coneDir.xyz));
+    float spotLightFactor = (spotLightSurfaceRatio > spot_coneRatio.x) ? 1 : 0;
+    float spotLightRatio = saturate(dot(spotLightDir, wnrm));
+    float4 spotResult = spotLightFactor * spotLightRatio * spot_color * baseColor;
+    float spotAttenuation = saturate((spot_InnerRatio.x - spotLightSurfaceRatio) / (spot_InnerRatio.x - spot_OuterRatio.x));
+    spotAttenuation = spotAttenuation * spotAttenuation;
+
+    return saturate((spotResult * spotAttenuation) + (pointResult * pointAttenuation) + dirResult);
 }

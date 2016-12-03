@@ -128,6 +128,18 @@
     <Image Include="Assets\Eye_Panda.dds">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\sidewalk_seamless.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SkyboxOcean.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\hw_alps.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\woodFloor3_seamless.dds">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
@@ -137,6 +149,10 @@
     <None Include="Assets\test pyramid.obj">
       <Filter>Assets</Filter>
     </None>
+    <None Include="Assets\FuzzyGoomba.obj" />
+    <None Include="Assets\BattleAmbulance.obj" />
+    <None Include="Assets\KungFu_Panda.obj" />
+    <None Include="Assets\KungFu_Panda_Eyes.obj" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\SamplePixelShader.hlsl">
@@ -151,18 +167,21 @@
     <FxCompile Include="PS_Model_Shader.hlsl">
       <Filter>Content\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PS_Skybox.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VS_Skybox.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Object Include="Assets\FuzzyGoomba.obj">
+    <Object Include="Assets\plane.obj">
       <Filter>Assets</Filter>
     </Object>
-    <Object Include="Assets\BattleAmbulance.obj">
+    <Object Include="Assets\sphere.obj">
       <Filter>Assets</Filter>
     </Object>
-    <Object Include="Assets\KungFu_Panda.obj">
-      <Filter>Assets</Filter>
-    </Object>
-    <Object Include="Assets\KungFu_Panda_Eyes.obj">
+    <Object Include="Assets\cube.obj">
       <Filter>Assets</Filter>
     </Object>
   </ItemGroup>
