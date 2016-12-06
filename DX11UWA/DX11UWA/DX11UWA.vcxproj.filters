@@ -11,24 +11,6 @@
     <Filter Include="Content">
       <UniqueIdentifier>b7e36159-05d0-4257-9a98-aaef46784dbb</UniqueIdentifier>
     </Filter>
-    <Image Include="Assets\LockScreenLogo.scale-200.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\SplashScreen.scale-200.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\Square150x150Logo.scale-200.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\Square44x44Logo.scale-200.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\Wide310x150Logo.scale-200.png">
-      <Filter>Assets</Filter>
-    </Image>
     <Filter Include="Content\Source">
       <UniqueIdentifier>{0ad65f92-c343-4f25-841a-d4250a9836ee}</UniqueIdentifier>
     </Filter>
@@ -43,6 +25,12 @@
     </Filter>
     <Filter Include="Common\Source">
       <UniqueIdentifier>{6ce5511b-6e37-49a1-8d5e-bfa27029cc93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Objects">
+      <UniqueIdentifier>{685a3685-4d2e-4e74-9e76-5740739011e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures">
+      <UniqueIdentifier>{607d72a6-6c42-4410-88f7-04c096a23e06}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -110,64 +98,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Assets\StoreLogo.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\Diffuse_Fuzzy.dds">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\TEX_Ambulance_Diff.dds">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\concrete_dirtywhite_wall_seamless.dds">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\kungFu_Panda_Tex.dds">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\Eye_Panda.dds">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\sidewalk_seamless.dds">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\SkyboxOcean.dds">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\hw_alps.dds">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\woodFloor3_seamless.dds">
-      <Filter>Assets</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DX11UWA_TemporaryKey.pfx" />
-    <None Include="Assets\test pyramid.obj">
+    <None Include="Assets\cube.mtl">
       <Filter>Assets</Filter>
     </None>
-    <None Include="Assets\sphere.obj">
+    <None Include="Assets\plane.mtl">
       <Filter>Assets</Filter>
     </None>
-    <None Include="Assets\plane.obj">
-      <Filter>Assets</Filter>
-    </None>
-    <None Include="Assets\KungFu_Panda_Eyes.obj">
-      <Filter>Assets</Filter>
-    </None>
-    <None Include="Assets\KungFu_Panda.obj">
-      <Filter>Assets</Filter>
-    </None>
-    <None Include="Assets\FuzzyGoomba.obj">
-      <Filter>Assets</Filter>
-    </None>
-    <None Include="Assets\cube.obj">
-      <Filter>Assets</Filter>
-    </None>
-    <None Include="Assets\BattleAmbulance.obj">
+    <None Include="Assets\sphere.mtl">
       <Filter>Assets</Filter>
     </None>
   </ItemGroup>
@@ -196,5 +137,87 @@
     <FxCompile Include="PS_Normal.hlsl">
       <Filter>Content\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Textures\concrete_dirtywhite_wall_seamless.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Diffuse_Fuzzy.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Eye_Panda.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\hw_alps.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\kungFu_Panda_Tex.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\MidBoss_Floor_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\MidBoss_Floor_Normal.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\sidewalk_seamless.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\SkyboxOcean.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\TEX_Ambulance_Diff.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\woodFloor3_seamless.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Assets\Objects\BattleAmbulance.obj">
+      <Filter>Assets\Objects</Filter>
+    </Object>
+    <Object Include="Assets\Objects\cube.obj">
+      <Filter>Assets\Objects</Filter>
+    </Object>
+    <Object Include="Assets\Objects\FuzzyGoomba.obj">
+      <Filter>Assets\Objects</Filter>
+    </Object>
+    <Object Include="Assets\Objects\KungFu_Panda.obj">
+      <Filter>Assets\Objects</Filter>
+    </Object>
+    <Object Include="Assets\Objects\KungFu_Panda_Eyes.obj">
+      <Filter>Assets\Objects</Filter>
+    </Object>
+    <Object Include="Assets\Objects\plane.obj">
+      <Filter>Assets\Objects</Filter>
+    </Object>
+    <Object Include="Assets\Objects\sphere.obj">
+      <Filter>Assets\Objects</Filter>
+    </Object>
+    <Object Include="Assets\Objects\test pyramid.obj">
+      <Filter>Assets\Objects</Filter>
+    </Object>
   </ItemGroup>
 </Project>

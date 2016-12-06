@@ -25,6 +25,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_VertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>			m_PixelShader;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_ShaderResourceView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_NormalShaderResourceView;
 
 	std::vector<DX11UWA::VertexPositionUVNormal>		m_InterleavedVertices;
 	std::vector<unsigned int>							m_InterleavedIndices;
@@ -38,6 +39,7 @@ private:
 	// Private functions
 	bool LoadBuffers(const ID3D11Device* device);
 	bool LoadTexture(const ID3D11Device* device, const wchar_t* szTextureName);
+	bool LoadNormalTexture(const ID3D11Device* device, const wchar_t * szNormalTextureName);
 
 public:
 	// Class trilogy
@@ -47,7 +49,7 @@ public:
 	Model& operator=(const Model& copy);
 
 	// Public Functions
-	bool LoadOBJFromFile(const ID3D11Device* device, const char* szFileName, const wchar_t* szTextureName);
+	bool LoadOBJFromFile(const ID3D11Device* device, const char* szFileName, const wchar_t* szTextureName, const wchar_t * szNormalTextureName);
 
 	// Accessors
 	inline ID3D11Buffer* GetVertexBuffer(void) { return m_VertexBuffer.Get(); }

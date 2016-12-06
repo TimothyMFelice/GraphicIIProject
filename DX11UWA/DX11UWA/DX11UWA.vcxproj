@@ -188,24 +188,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Image Include="Assets\concrete_dirtywhite_wall_seamless.dds" />
-    <Image Include="Assets\Diffuse_Fuzzy.dds" />
-    <Image Include="Assets\Eye_Panda.dds" />
-    <Image Include="Assets\hw_alps.dds" />
-    <Image Include="Assets\kungFu_Panda_Tex.dds" />
-    <Image Include="Assets\LockScreenLogo.scale-200.png" />
-    <Image Include="Assets\sidewalk_seamless.dds" />
-    <Image Include="Assets\SkyboxOcean.dds" />
-    <Image Include="Assets\SplashScreen.scale-200.png" />
-    <Image Include="Assets\Square150x150Logo.scale-200.png" />
-    <Image Include="Assets\Square44x44Logo.scale-200.png" />
-    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Image Include="Assets\StoreLogo.png" />
-    <Image Include="Assets\TEX_Ambulance_Diff.dds" />
-    <Image Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Image Include="Assets\woodFloor3_seamless.dds" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="Common\DDSTextureLoader.h" />
     <ClInclude Include="Common\DeviceResources.h" />
@@ -240,6 +222,9 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="Assets\cube.mtl" />
+    <None Include="Assets\plane.mtl" />
+    <None Include="Assets\sphere.mtl" />
     <None Include="DX11UWA_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -317,7 +302,27 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\test pyramid.obj">
+    <Image Include="Assets\LockScreenLogo.scale-200.png" />
+    <Image Include="Assets\SplashScreen.scale-200.png" />
+    <Image Include="Assets\Square150x150Logo.scale-200.png" />
+    <Image Include="Assets\Square44x44Logo.scale-200.png" />
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Image Include="Assets\StoreLogo.png" />
+    <Image Include="Assets\Textures\concrete_dirtywhite_wall_seamless.dds" />
+    <Image Include="Assets\Textures\Diffuse_Fuzzy.dds" />
+    <Image Include="Assets\Textures\Eye_Panda.dds" />
+    <Image Include="Assets\Textures\hw_alps.dds" />
+    <Image Include="Assets\Textures\kungFu_Panda_Tex.dds" />
+    <Image Include="Assets\Textures\MidBoss_Floor_Diffuse.dds" />
+    <Image Include="Assets\Textures\MidBoss_Floor_Normal.dds" />
+    <Image Include="Assets\Textures\sidewalk_seamless.dds" />
+    <Image Include="Assets\Textures\SkyboxOcean.dds" />
+    <Image Include="Assets\Textures\TEX_Ambulance_Diff.dds" />
+    <Image Include="Assets\Textures\woodFloor3_seamless.dds" />
+    <Image Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Objects\BattleAmbulance.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
@@ -332,9 +337,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\FuzzyGoomba.obj">
+    <None Include="Assets\Objects\cube.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
@@ -349,9 +352,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\BattleAmbulance.obj">
+    <None Include="Assets\Objects\FuzzyGoomba.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
@@ -366,9 +367,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\KungFu_Panda.obj">
+    <None Include="Assets\Objects\KungFu_Panda.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
@@ -383,9 +382,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\KungFu_Panda_Eyes.obj">
+    <None Include="Assets\Objects\KungFu_Panda_Eyes.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
@@ -400,9 +397,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\plane.obj">
+    <None Include="Assets\Objects\plane.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
@@ -417,9 +412,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\sphere.obj">
+    <None Include="Assets\Objects\sphere.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
@@ -434,9 +427,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\cube.obj">
+    <None Include="Assets\Objects\test pyramid.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>

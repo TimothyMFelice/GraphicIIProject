@@ -23,6 +23,7 @@ Model::Model(void)
 	m_VertexShader = nullptr;
 	m_PixelShader = nullptr;
 	m_ShaderResourceView = nullptr;
+	m_NormalShaderResourceView = nullptr;
 
 	m_InterleavedVertices.clear();
 	m_InterleavedIndices.clear();
@@ -38,6 +39,7 @@ Model::~Model(void)
 	m_VertexShader.Reset();
 	m_PixelShader.Reset();
 	m_ShaderResourceView.Reset();
+	m_NormalShaderResourceView.Reset();
 
 	m_InterleavedVertices.clear();
 	m_InterleavedIndices.clear();
@@ -54,6 +56,8 @@ Model::Model(const Model & copy)
 	this->m_PixelShader = copy.m_PixelShader;
 
 	this->m_ShaderResourceView = copy.m_ShaderResourceView;
+	this->m_NormalShaderResourceView = copy.m_NormalShaderResourceView;
+
 	this->m_InterleavedVertices = copy.m_InterleavedVertices;
 	this->m_InterleavedIndices = copy.m_InterleavedIndices;
 
@@ -72,6 +76,7 @@ Model & Model::operator=(const Model & copy)
 		this->m_PixelShader = copy.m_PixelShader;
 
 		this->m_ShaderResourceView = copy.m_ShaderResourceView;
+		this->m_NormalShaderResourceView = copy.m_NormalShaderResourceView;
 		this->m_InterleavedVertices = copy.m_InterleavedVertices;
 		this->m_InterleavedIndices = copy.m_InterleavedIndices;
 
@@ -117,7 +122,14 @@ bool Model::LoadTexture(const ID3D11Device* device, const wchar_t * szTextureNam
 	return TRUE;
 }
 
-bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName, const wchar_t * szTextureName)
+bool Model::LoadNormalTexture(const ID3D11Device* device, const wchar_t * szNormalTextureName)
+{
+	CreateDDSTextureFromFile(const_cast<ID3D11Device*>(device), szNormalTextureName, NULL, this->m_NormalShaderResourceView.GetAddressOf());
+
+	return TRUE;
+}
+
+bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName, const wchar_t * szTextureName, const wchar_t * szNormalTextureName)
 {
 	std::vector<XMFLOAT3>		m_vVertices,	 m_vTexcoords,		  m_vNormals;
 	std::vector<unsigned int>	m_vVertIndicies, m_vTexcoordIndicies, m_vNormIndicies;
@@ -204,6 +216,9 @@ bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName,
 		return FALSE;
 	
 	if (!LoadTexture(device, szTextureName))
+		return FALSE;
+
+	if (!LoadNormalTexture(device, szNormalTextureName))
 		return FALSE;
 
 	return TRUE;

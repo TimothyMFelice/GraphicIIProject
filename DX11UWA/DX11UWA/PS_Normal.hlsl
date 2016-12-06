@@ -45,21 +45,24 @@ float4 main(PixelShaderInput input) : SV_TARGET
 {
     float4 baseColor = baseTexture.Sample(filters[0], input.uv);
     float4 detailColor = detailTexture.Sample(filters[1], input.uv);
-    float4 finalColor = float4(lerp(baseColor.rgb, detailColor.rgb, detailColor.a), baseColor.a);
+    detailColor.x = (detailColor.x * 2.0f) - 1.0f;
+    detailColor.y = (detailColor.x * 2.0f) - 1.0f;
+    detailColor.z = (detailColor.x * 2.0f) - 1.0f;
 
-    float3 AmbientLight = float3(0.25f, 0.25f, 0.25f) * finalColor.xyz;
+
+    float3 AmbientLight = float3(0.25f, 0.25f, 0.25f) * baseColor.xyz;
 
     float3 lightDir = -normalize(dir);
-    float3 wnrm = normalize(input.norm);
+    float3 wnrm = detailColor; //normalize(input.norm);
 
     // Dirctional Light
-    float3 directionalLight = saturate((dot(lightDir, wnrm)) * finalColor.xyz * dir_color.xyz);
-    float4 dirResult = float4(saturate(AmbientLight + directionalLight), finalColor.w);
+    float3 directionalLight = saturate((dot(lightDir, wnrm)) * baseColor.xyz * dir_color.xyz);
+    float4 dirResult = float4(saturate(AmbientLight + directionalLight), baseColor.w);
 
     // Point Light
     float3 pointLightDir = normalize(point_pos.xyz - input.worldPos);
     float pointLightRatio = saturate(dot(pointLightDir, wnrm));
-    float4 pointResult = pointLightRatio * point_color * finalColor;
+    float4 pointResult = pointLightRatio * point_color * baseColor;
     float pointAttenuation = 1.0f - saturate(length(point_pos.xyz - input.worldPos) / point_radius);
     pointAttenuation = pointAttenuation * pointAttenuation;
 
@@ -68,7 +71,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float spotLightSurfaceRatio = saturate(dot(-spotLightDir, spot_coneDir.xyz));
     float spotLightFactor = (spotLightSurfaceRatio > spot_coneRatio.x) ? 1 : 0;
     float spotLightRatio = saturate(dot(spotLightDir, wnrm));
-    float4 spotResult = spotLightFactor * spotLightRatio * spot_color * finalColor;
+    float4 spotResult = spotLightFactor * spotLightRatio * spot_color * baseColor;
     float spotAttenuation = saturate((spot_InnerRatio.x - spotLightSurfaceRatio) / (spot_InnerRatio.x - spot_OuterRatio.x));
     spotAttenuation = spotAttenuation * spotAttenuation;
 

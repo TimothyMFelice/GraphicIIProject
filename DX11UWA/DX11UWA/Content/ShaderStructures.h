@@ -32,6 +32,14 @@ namespace DX11UWA
 		DirectX::XMFLOAT3 normal;
 	};
 
+	struct VertexPositionUVNormalTagent
+	{
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 uv;
+		DirectX::XMFLOAT3 normal;
+		DirectX::XMFLOAT4 tangent;
+	};
+
 	struct DIR_LIGHT
 	{
 		DirectX::XMFLOAT4 dir_color;

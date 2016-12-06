@@ -96,6 +96,9 @@ namespace DX11UWA
 		Model*										m_Point_Sphere;
 		Model*										m_Spot_Sphere;
 
+		//Normal Mapping
+		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_NormalPixelShader;
+
 		//Sky Box
 		Model*										m_SkyBox;
 		Model*										m_miniMapSkyBox;
