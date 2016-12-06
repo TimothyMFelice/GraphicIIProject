@@ -39,6 +39,7 @@ namespace DX11UWA
 
 		// SamplerState
 		Microsoft::WRL::ComPtr<ID3D11SamplerState>			m_samplerState;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState>			m_skyboxSamplerSate;
 
 		// DIR Lighting Stuff
 		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_DIR_LightConstantBuffer;

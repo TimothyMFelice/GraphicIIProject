@@ -418,6 +418,16 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
 
 	m_d3dContext->RSSetViewports(1, &m_screenViewport);
 
+	// Set the 3D rendering minimap viewport to target the top left.
+	m_minimapViewport = CD3D11_VIEWPORT(
+		0.0f,
+		0.0f,
+		(m_d3dRenderTargetSize.Width/3.5f),
+		(m_d3dRenderTargetSize.Height/3.5f)
+	);
+
+	m_d3dContext->RSSetViewports(1, &m_minimapViewport);
+
 	// Create a Direct2D target bitmap associated with the
 	// swap chain back buffer and set it as the current target.
 	D2D1_BITMAP_PROPERTIES1 bitmapProperties = 

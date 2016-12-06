@@ -384,6 +384,7 @@ void Sample3DSceneRenderer::Render(void)
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	// Set Sampler State
 	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+	context->PSSetSamplers(1, 1, m_skyboxSamplerSate.GetAddressOf());
 	// Draw the objects.
 	context->DrawIndexed(m_indexCount, 0, 0);
 
@@ -636,6 +637,24 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 		m_SkyBox->SetInputLayout(m_SkyBoxinputLayout.Get());
 		m_SkyBox->SetVertexShader(m_SkyBoxvertexShader.Get());
 		m_SkyBox->SetPixelShader(m_SkyBoxpixelShader.Get());
+
+		//Sampler
+		D3D11_SAMPLER_DESC skyboxSamplerDesc;
+		skyboxSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		skyboxSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		skyboxSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		skyboxSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		skyboxSamplerDesc.MipLODBias = 0.0f;
+		skyboxSamplerDesc.MaxAnisotropy = 1;
+		skyboxSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		skyboxSamplerDesc.BorderColor[0] = 0.0f;
+		skyboxSamplerDesc.BorderColor[1] = 0.0f;
+		skyboxSamplerDesc.BorderColor[2] = 0.0f;
+		skyboxSamplerDesc.BorderColor[3] = 0.0f;
+		skyboxSamplerDesc.MinLOD = 0;
+		skyboxSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		m_deviceResources->GetD3DDevice()->CreateSamplerState(&skyboxSamplerDesc, &m_skyboxSamplerSate);
 	});
 
 	//Lighting

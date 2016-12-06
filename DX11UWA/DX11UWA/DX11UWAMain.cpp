@@ -80,6 +80,13 @@ bool DX11UWAMain::Render(void)
 	// Render the scene objects.
 	// TODO: Replace this with your app's content rendering functions.
 	m_sceneRenderer->Render();
+
+	// Reset the minimapviewport to target the whole screen.
+	auto minimapviewport = m_deviceResources->GetMiniMapViewport();
+	context->RSSetViewports(1, &minimapviewport);
+	context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_sceneRenderer->Render();
+
 	m_fpsTextRenderer->Render();
 
 	return true;
