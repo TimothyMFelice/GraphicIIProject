@@ -84,83 +84,69 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 //////////////////////////////////////////////////////////////
 	//Plane
 	ModelViewProjectionConstantBuffer planeData;
-	planeData.view = m_constantBufferData.view;
-	planeData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&planeData.model, XMMatrixTranspose(XMMatrixTranslation(0.0f, -1.0f, 0.0f)));
 	m_Plane->SetConstBuffer(planeData);
 
 	//Pyramid
 	ModelViewProjectionConstantBuffer pyramidData;
-	pyramidData.view = m_constantBufferData.view;
-	pyramidData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&pyramidData.model, XMMatrixTranspose(XMMatrixTranslation(3.0f, -0.2f, 0.0f)));
 	m_Pyramid->SetConstBuffer(pyramidData);
 
 	//Fuzzy Goomba
 	ModelViewProjectionConstantBuffer FuzzyData;
-	FuzzyData.view = m_constantBufferData.view;
-	FuzzyData.projection = m_constantBufferData.projection;
-
-	XMStoreFloat4x4(&FuzzyData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(-3.0f, -0.6f, 0.0f))));
+	XMStoreFloat4x4(&FuzzyData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(-3.0f, -0.6f, -1.5f))));
 	m_FuzzyGoomba->SetConstBuffer(FuzzyData);
 
 	//Battle Ambulance
 	ModelViewProjectionConstantBuffer BattleData;
-	BattleData.view = m_constantBufferData.view;
-	BattleData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&BattleData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.5, 0.5, 0.5), XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(5.0f, -0.6f, 5.0f)))));
 	m_BattleAmbulance->SetConstBuffer(BattleData);
 
 	//KungFu Panda
 	ModelViewProjectionConstantBuffer PandaData;
-	PandaData.view = m_constantBufferData.view;
-	PandaData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&PandaData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5, 1.5, 1.5), XMMatrixMultiply(XMMatrixRotationY(180.0f), XMMatrixTranslation(0.0f, -0.6f, 5.0f)))));
 	m_KungFu_Panda->SetConstBuffer(PandaData);
 
 	//KungFu Panda Eye
 	ModelViewProjectionConstantBuffer PandaEyeData;
-	PandaEyeData.view = m_constantBufferData.view;
-	PandaEyeData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&PandaEyeData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5, 1.5, 1.5), XMMatrixMultiply(XMMatrixRotationY(180.0f), XMMatrixTranslation(0.0f, -0.6f, 5.0f)))));
 	m_KungFu_Panda_Eye->SetConstBuffer(PandaEyeData);
 
 	//Sphere
 	ModelViewProjectionConstantBuffer sphereData;
-	sphereData.view = m_constantBufferData.view;
-	sphereData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&sphereData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5, 1.5, 1.5), XMMatrixTranslation(-5.0f, 1.0f, 5.0f))));
 	m_Sphere->SetConstBuffer(sphereData);
 
 	//Point Light Sphere
 	ModelViewProjectionConstantBuffer pointLightData;
-	pointLightData.view = m_constantBufferData.view;
-	pointLightData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&pointLightData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.4, 0.4, 0.4), XMMatrixTranslation(7.0f, cos(radians) * 2.0f, 0.0f))));
 	m_Point_Sphere->SetConstBuffer(pointLightData);
 
 	//Spot Light Sphere
 	ModelViewProjectionConstantBuffer spotLightData;
-	spotLightData.view = m_constantBufferData.view;
-	spotLightData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&spotLightData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.4, 0.4, 0.4), XMMatrixMultiply(XMMatrixRotationZ(radians), XMMatrixTranslation(-7.0f, cos(radians) * 2.0f, 0.0f)))));
 	m_Spot_Sphere->SetConstBuffer(spotLightData);
 
 	// Sky Box
 	ModelViewProjectionConstantBuffer skyBoxData;
-	skyBoxData.view = m_constantBufferData.view;
-	skyBoxData.projection = m_constantBufferData.projection;
-
 	XMStoreFloat4x4(&skyBoxData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(25.0, 25.0, 25.0), XMMatrixTranslation(m_camera._41, m_camera._42, m_camera._43))));
 	m_SkyBox->SetConstBuffer(skyBoxData);
+
+	// Minimap Sky Box
+	ModelViewProjectionConstantBuffer minimapSkyBoxData;
+	XMStoreFloat4x4(&minimapSkyBoxData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(25.0, 25.0, 25.0), XMMatrixTranslation(0.0f, 0.0f, 0.0f))));
+	m_miniMapSkyBox->SetConstBuffer(minimapSkyBoxData);
+
+	// Instance Model
+	InstanceModelViewProjectionConstantBuffer instanceModelData;
+	XMStoreFloat4x4(&instanceModelData.model[0], XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(-4.0f, -0.6f, -1.50f))));
+	XMStoreFloat4x4(&instanceModelData.model[1], XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(-5.0f, -0.6f, -1.50f))));
+	XMStoreFloat4x4(&instanceModelData.model[2], XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(-6.0f, -0.6f, -1.50f))));
+	XMStoreFloat4x4(&instanceModelData.model[3], XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(-7.0f, -0.6f, -1.50f))));
+	XMStoreFloat4x4(&instanceModelData.model[4], XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(-8.0f, -0.6f, -1.50f))));
+	m_instanceFuzzyGoomba->SetInstanceConstBuffer(instanceModelData);
+
+
 
 
 	//UPDATE LIGHT
@@ -272,8 +258,13 @@ void Sample3DSceneRenderer::DrawModel(ID3D11DeviceContext1* context, Model * mod
 	if (!model)
 		return;
 
+	ModelViewProjectionConstantBuffer newData;
+	newData.view = m_constantBufferData.view;
+	newData.projection = m_constantBufferData.projection;
+	newData.model = model->GetConstBufferData().model;
+
 	// Prepare the constant buffer to send it to the graphics device.
-	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &model->GetConstBufferData(), 0, 0, 0);
+	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &newData, 0, 0, 0);
 	// Each vertex is one instance of the VertexPositionColor struct.
 	UINT stride = sizeof(VertexPositionUVNormal);
 	UINT offset = 0;
@@ -313,6 +304,56 @@ void Sample3DSceneRenderer::DrawModel(ID3D11DeviceContext1* context, Model * mod
 	context->DrawIndexed(model->GetNumIndicies(), 0, 0);
 }
 
+void Sample3DSceneRenderer::DrawInstanceModel(ID3D11DeviceContext1* context, Model * model)
+{
+	if (!model)
+		return;
+
+	InstanceModelViewProjectionConstantBuffer newData = model->GetInstanceConstBufferData();
+	newData.view = m_constantBufferData.view;
+	newData.projection = m_constantBufferData.projection;
+
+	// Prepare the constant buffer to send it to the graphics device.
+	context->UpdateSubresource1(m_instanceConstantBuffer.Get(), 0, NULL, &newData, 0, 0, 0);
+	// Each vertex is one instance of the VertexPositionColor struct.
+	UINT stride = sizeof(VertexPositionUVNormal);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, model->GetAddressOfVertexBuffer(), &stride, &offset);
+	// Each index is one 16-bit unsigned integer (short).
+	context->IASetIndexBuffer(model->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context->IASetInputLayout(model->GetInputLayout());
+	// Attach our vertex shader.
+	context->VSSetShader(model->GetVertexShader(), nullptr, 0);
+	// Send the constant buffer to the graphics device.
+	context->VSSetConstantBuffers1(0, 1, m_instanceConstantBuffer.GetAddressOf(), nullptr, nullptr);
+	// Attach our pixel shader.
+	context->PSSetShader(model->GetPixelShader(), nullptr, 0);
+	// Attach the srv to the pixel shader
+	context->PSSetShaderResources(0, 1, model->GetAddressOfShaderResourceView());
+
+
+	//DIR LIGHT
+	// Prepare the constant buffer to send it to the graphics device.
+	context->UpdateSubresource1(m_DIR_LightConstantBuffer.Get(), 0, NULL, &m_DIR_LightConstantBufferData, 0, 0, 0);
+	// Send the constant buffer for lighting
+	context->PSSetConstantBuffers1(0, 1, m_DIR_LightConstantBuffer.GetAddressOf(), nullptr, nullptr);
+	//POINT LIGHT
+	// Prepare the constant buffer to send it to the graphics device.
+	context->UpdateSubresource1(m_POINT_LightConstantBuffer.Get(), 0, NULL, &m_POINT_LightConstantBufferData, 0, 0, 0);
+	// Send the constant buffer for lighting
+	context->PSSetConstantBuffers1(1, 1, m_POINT_LightConstantBuffer.GetAddressOf(), nullptr, nullptr);
+	//SPOT LIGHT
+	// Prepare the constant buffer to send it to the graphics device.
+	context->UpdateSubresource1(m_SPOT_LightConstantBuffer.Get(), 0, NULL, &m_SPOT_LightConstantBufferData, 0, 0, 0);
+	// Send the constant buffer for lighting
+	context->PSSetConstantBuffers1(2, 1, m_SPOT_LightConstantBuffer.GetAddressOf(), nullptr, nullptr);
+
+
+	// Draw the objects.
+	context->DrawIndexedInstanced(model->GetNumIndicies(), 5, 0, 0, 0);
+}
+
 void Sample3DSceneRenderer::SetKeyboardButtons(const char* list)
 {
 	memcpy_s(m_kbuttons, sizeof(m_kbuttons), list, sizeof(m_kbuttons));
@@ -350,7 +391,7 @@ void Sample3DSceneRenderer::StopTracking(void)
 }
 
 // Renders one frame using the vertex and pixel shaders.
-void Sample3DSceneRenderer::Render(void)
+void Sample3DSceneRenderer::Render(unsigned int viewport)
 {
 	// Loading is asynchronous. Only draw geometry after it's loaded.
 	if (!m_loadingComplete)
@@ -360,12 +401,20 @@ void Sample3DSceneRenderer::Render(void)
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_camera))));
-
-	// Sky Box
-	DrawModel(context, m_SkyBox);
-	context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
+	if (viewport == 0)
+	{
+		XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_camera))));
+		//SkyBox
+		DrawModel(context, m_SkyBox);
+		context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
+	else if (viewport == 1)
+	{
+		XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixMultiply(XMMatrixRotationX(1.5708f), XMMatrixTranslation(0.0f, 15.0f, 0.0f)))));
+		//Sky Box
+		DrawModel(context, m_miniMapSkyBox);
+		context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
 	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_constantBufferData, 0, 0, 0);
 	// Each vertex is one instance of the VertexPositionColor struct.
@@ -401,6 +450,8 @@ void Sample3DSceneRenderer::Render(void)
 		// Lighting Spheres
 	DrawModel(context, m_Point_Sphere);
 	DrawModel(context, m_Spot_Sphere);
+
+	DrawInstanceModel(context, m_instanceFuzzyGoomba);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
@@ -602,6 +653,40 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	});
 
 //////////////////////////////////////////////////////////////
+//Instance
+//////////////////////////////////////////////////////////////
+	// Load shaders asynchronously.
+	auto loadInstanceVSTask = DX::ReadDataAsync(L"VS_Instance.cso");
+
+	// After the vertex shader file is loaded, create the shader and input layout.
+	auto createInstanceVSTask = loadInstanceVSTask.then([this](const std::vector<byte>& fileData)
+	{
+		CD3D11_BUFFER_DESC intanceConstantBufferDesc(sizeof(InstanceModelViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&intanceConstantBufferDesc, nullptr, &m_instanceConstantBuffer));
+
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateVertexShader(&fileData[0], fileData.size(), nullptr, &m_instanceVertexShader));
+
+		static const D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "UV", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateInputLayout(vertexDesc, ARRAYSIZE(vertexDesc), &fileData[0], fileData.size(), &m_ModelinputLayout));
+	});
+
+	auto instanceLoading = (createInstanceVSTask).then([this]()
+	{
+		m_instanceFuzzyGoomba = new Model();
+		m_instanceFuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/FuzzyGoomba.obj", L"Assets/Diffuse_Fuzzy.dds");
+		m_instanceFuzzyGoomba->SetInputLayout(m_ModelinputLayout.Get());
+		m_instanceFuzzyGoomba->SetVertexShader(m_instanceVertexShader.Get());
+		m_instanceFuzzyGoomba->SetPixelShader(m_ModelpixelShader.Get());
+	});
+
+
+//////////////////////////////////////////////////////////////
 //SKy Box
 //////////////////////////////////////////////////////////////
 	// Load shaders asynchronously.
@@ -637,6 +722,13 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 		m_SkyBox->SetInputLayout(m_SkyBoxinputLayout.Get());
 		m_SkyBox->SetVertexShader(m_SkyBoxvertexShader.Get());
 		m_SkyBox->SetPixelShader(m_SkyBoxpixelShader.Get());
+
+		// Minimap Sky Box
+		m_miniMapSkyBox = new Model();
+		m_miniMapSkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/cube.obj", L"Assets/hw_alps.dds");
+		m_miniMapSkyBox->SetInputLayout(m_SkyBoxinputLayout.Get());
+		m_miniMapSkyBox->SetVertexShader(m_SkyBoxvertexShader.Get());
+		m_miniMapSkyBox->SetPixelShader(m_SkyBoxpixelShader.Get());
 
 		//Sampler
 		D3D11_SAMPLER_DESC skyboxSamplerDesc;

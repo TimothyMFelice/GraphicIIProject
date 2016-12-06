@@ -420,10 +420,10 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
 
 	// Set the 3D rendering minimap viewport to target the top left.
 	m_minimapViewport = CD3D11_VIEWPORT(
-		0.0f,
-		0.0f,
-		(m_d3dRenderTargetSize.Width/3.5f),
-		(m_d3dRenderTargetSize.Height/3.5f)
+		m_d3dRenderTargetSize.Width - (m_d3dRenderTargetSize.Width / 3.5f),
+		m_d3dRenderTargetSize.Height - (m_d3dRenderTargetSize.Height / 3.5f),
+		(m_d3dRenderTargetSize.Width / 3.5f),
+		(m_d3dRenderTargetSize.Height / 3.5f)
 	);
 
 	m_d3dContext->RSSetViewports(1, &m_minimapViewport);

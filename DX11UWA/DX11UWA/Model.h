@@ -32,6 +32,7 @@ private:
 	unsigned int										m_NumIndices;
 
 	DX11UWA::ModelViewProjectionConstantBuffer			m_ConstBufferData;
+	DX11UWA::InstanceModelViewProjectionConstantBuffer	m_instanceConstBufferData;
 
 
 	// Private functions
@@ -65,6 +66,7 @@ public:
 	inline unsigned int GetNumIndicies(void) { return m_NumIndices; }
 
 	inline DX11UWA::ModelViewProjectionConstantBuffer GetConstBufferData(void) { return m_ConstBufferData; }
+	inline DX11UWA::InstanceModelViewProjectionConstantBuffer GetInstanceConstBufferData(void) { return m_instanceConstBufferData; }
 
 	// Mutators
 	inline void SetVertexBuffer(const ID3D11Buffer* vertBuffer) { this->m_VertexBuffer = const_cast<ID3D11Buffer*>(vertBuffer); }
@@ -75,5 +77,6 @@ public:
 	inline void SetShaderResourceView(const ID3D11ShaderResourceView* srv) { this->m_ShaderResourceView = const_cast<ID3D11ShaderResourceView*>(srv); }
 
 	inline void SetConstBuffer(DX11UWA::ModelViewProjectionConstantBuffer data) { this->m_ConstBufferData = data; }
+	inline void SetInstanceConstBuffer(DX11UWA::InstanceModelViewProjectionConstantBuffer data) { this->m_instanceConstBufferData = data; }
 
 };

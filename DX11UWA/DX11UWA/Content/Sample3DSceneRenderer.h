@@ -17,7 +17,7 @@ namespace DX11UWA
 		void CreateWindowSizeDependentResources(void);
 		void ReleaseDeviceDependentResources(void);
 		void Update(DX::StepTimer const& timer);
-		void Render(void);
+		void Render(unsigned int viewport);
 		void StartTracking(void);
 		void TrackingUpdate(float positionX);
 		void StopTracking(void);
@@ -83,6 +83,7 @@ namespace DX11UWA
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_ModelpixelShader;
 
 		void DrawModel(ID3D11DeviceContext1* context, Model* model);
+		void DrawInstanceModel(ID3D11DeviceContext1* context, Model * model);
 
 		Model*										m_Plane;
 		Model*										m_Pyramid;
@@ -97,9 +98,15 @@ namespace DX11UWA
 
 		//Sky Box
 		Model*										m_SkyBox;
+		Model*										m_miniMapSkyBox;
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_SkyBoxinputLayout;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_SkyBoxvertexShader;
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_SkyBoxpixelShader;
+
+		//instance Stuff
+		Model*										m_instanceFuzzyGoomba;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_instanceConstantBuffer;
+		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_instanceVertexShader;
 
 	};
 }

@@ -149,10 +149,27 @@
     <None Include="Assets\test pyramid.obj">
       <Filter>Assets</Filter>
     </None>
-    <None Include="Assets\FuzzyGoomba.obj" />
-    <None Include="Assets\BattleAmbulance.obj" />
-    <None Include="Assets\KungFu_Panda.obj" />
-    <None Include="Assets\KungFu_Panda_Eyes.obj" />
+    <None Include="Assets\sphere.obj">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\plane.obj">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\KungFu_Panda_Eyes.obj">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\KungFu_Panda.obj">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\FuzzyGoomba.obj">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\cube.obj">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\BattleAmbulance.obj">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\SamplePixelShader.hlsl">
@@ -173,16 +190,11 @@
     <FxCompile Include="VS_Skybox.hlsl">
       <Filter>Content\Shaders</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="Assets\plane.obj">
-      <Filter>Assets</Filter>
-    </Object>
-    <Object Include="Assets\sphere.obj">
-      <Filter>Assets</Filter>
-    </Object>
-    <Object Include="Assets\cube.obj">
-      <Filter>Assets</Filter>
-    </Object>
+    <FxCompile Include="VS_Instance.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_Normal.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

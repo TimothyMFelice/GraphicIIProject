@@ -10,6 +10,14 @@ namespace DX11UWA
 		DirectX::XMFLOAT4X4 projection;
 	};
 
+	// Constant buffer used to send MVP matrices to the vertex shader.
+	struct InstanceModelViewProjectionConstantBuffer
+	{
+		DirectX::XMFLOAT4X4 model[5];
+		DirectX::XMFLOAT4X4 view;
+		DirectX::XMFLOAT4X4 projection;
+	};
+
 	// Used to send per-vertex data to the vertex shader.
 	struct VertexPositionColor
 	{
