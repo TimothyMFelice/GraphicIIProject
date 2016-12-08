@@ -2,6 +2,7 @@
 #include "Sample3DSceneRenderer.h"
 
 #include "..\Common\DirectXHelper.h"
+#include "Common\DDSTextureLoader.h"
 
 using namespace DX11UWA;
 
@@ -281,6 +282,7 @@ void Sample3DSceneRenderer::DrawModel(ID3D11DeviceContext1* context, Model * mod
 	context->PSSetShader(model->GetPixelShader(), nullptr, 0);
 	// Attach the srv to the pixel shader
 	context->PSSetShaderResources(0, 1, model->GetAddressOfShaderResourceView());
+	context->PSSetShaderResources(1, 1, model->GetAddressOfShaderResourceViewNormal());
 
 
 	//DIR LIGHT
@@ -352,6 +354,34 @@ void Sample3DSceneRenderer::DrawInstanceModel(ID3D11DeviceContext1* context, Mod
 
 	// Draw the objects.
 	context->DrawIndexedInstanced(model->GetNumIndicies(), 5, 0, 0, 0);
+}
+
+void Sample3DSceneRenderer::DrawGeoShaderObject(ID3D11DeviceContext1 * context)
+{
+	ModelViewProjectionConstantBuffer newData;
+	memcpy(&newData, &m_constantBufferData, sizeof(newData));
+	XMStoreFloat4x4(&newData.model, XMMatrixTranspose(XMMatrixTranslation(-3.0f, 0.0f, 0.0f)));
+
+	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &newData, 0, 0, 0);
+	UINT stride = sizeof(VertexPositionUVNormal);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, &m_GeoVertexBuffer, &stride, &offset);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	context->IASetInputLayout(m_ModelinputLayout.Get());
+	context->VSSetShader(m_GeoVertexShader.Get(), nullptr, 0);
+	context->GSSetShader(m_GeoGeometryShader.Get(), nullptr, 0);
+	context->GSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
+	context->PSSetShader(m_ModelpixelShader.Get(), nullptr, 0);
+
+	//Geo Texture
+	ID3D11ShaderResourceView* shaderResource;
+	CreateDDSTextureFromFile(m_deviceResources->GetD3DDevice(), L"Assets/Textures/wallbrick_seamless.dds", NULL, &shaderResource);
+	context->PSSetShaderResources(0, 1, &shaderResource);
+
+	context->Draw(1, 0);
+
+	ID3D11GeometryShader* nullShader = nullptr;
+	context->GSSetShader(nullShader, nullptr, NULL);
 }
 
 void Sample3DSceneRenderer::SetKeyboardButtons(const char* list)
@@ -452,6 +482,11 @@ void Sample3DSceneRenderer::Render(unsigned int viewport)
 	DrawModel(context, m_Spot_Sphere);
 
 	DrawInstanceModel(context, m_instanceFuzzyGoomba);
+
+	//////////////////////////////////////////////////////////////
+	//Geometry
+	//////////////////////////////////////////////////////////////
+	DrawGeoShaderObject(context);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
@@ -542,12 +577,6 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_indexBuffer));
 	});
 
-	// Once the cube is loaded, the object is ready to be rendered.
-	createCubeTask.then([this]()
-	{
-		m_loadingComplete = true;
-	});
-
 //////////////////////////////////////////////////////////////
 //Model Loader
 //////////////////////////////////////////////////////////////
@@ -565,6 +594,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "UV", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateInputLayout(vertexDesc, ARRAYSIZE(vertexDesc), &fileData[0], fileData.size(), &m_ModelinputLayout));
@@ -579,25 +609,25 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	auto modelLoading = (createModelVSTask && createModelPSTask).then([this]()
 	{
 		m_Pyramid = new Model();
-		m_Pyramid->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/test pyramid.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", nullptr);
+		m_Pyramid->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/test pyramid.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds");
 		m_Pyramid->SetInputLayout(m_ModelinputLayout.Get());
 		m_Pyramid->SetVertexShader(m_ModelvertexShader.Get());
 		m_Pyramid->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_FuzzyGoomba = new Model();
-		m_FuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", nullptr);
+		m_FuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", L"Assets/Textures/Normal_Fuzzy.dds");
 		m_FuzzyGoomba->SetInputLayout(m_ModelinputLayout.Get());
 		m_FuzzyGoomba->SetVertexShader(m_ModelvertexShader.Get());
 		m_FuzzyGoomba->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_BattleAmbulance = new Model();
-		m_BattleAmbulance->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/BattleAmbulance.obj", L"Assets/Textures/TEX_Ambulance_Diff.dds", nullptr);
+		m_BattleAmbulance->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/BattleAmbulance.obj", L"Assets/Textures/TEX_Ambulance_Diff.dds", L"Assets/Textures/TEX_Ambulance_Normal.dds");
 		m_BattleAmbulance->SetInputLayout(m_ModelinputLayout.Get());
 		m_BattleAmbulance->SetVertexShader(m_ModelvertexShader.Get());
 		m_BattleAmbulance->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_KungFu_Panda = new Model();
-		m_KungFu_Panda->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/KungFu_Panda.obj", L"Assets/Textures/kungFu_Panda_Tex.dds", nullptr);
+		m_KungFu_Panda->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/KungFu_Panda.obj", L"Assets/Textures/kungFu_Panda_Tex.dds", L"Assets/Textures/Panda_Normal.dds");
 		m_KungFu_Panda->SetInputLayout(m_ModelinputLayout.Get());
 		m_KungFu_Panda->SetVertexShader(m_ModelvertexShader.Get());
 		m_KungFu_Panda->SetPixelShader(m_ModelpixelShader.Get());
@@ -609,23 +639,30 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 		m_KungFu_Panda_Eye->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_Sphere = new Model();
-		m_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", nullptr);
+		m_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds");
 		m_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Sphere->SetPixelShader(m_ModelpixelShader.Get());
 
 		// Light Spheres
 		m_Point_Sphere = new Model();
-		m_Point_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", nullptr);
+		m_Point_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds");
 		m_Point_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Point_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Point_Sphere->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_Spot_Sphere = new Model();
-		m_Spot_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", nullptr);
+		m_Spot_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds");
 		m_Spot_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Spot_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Spot_Sphere->SetPixelShader(m_ModelpixelShader.Get());
+
+		// PLANE
+		m_Plane = new Model();
+		m_Plane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/plane.obj", L"Assets/Textures/MidBoss_Floor_Diffuse.dds", L"Assets/Textures/MidBoss_Floor_Normal.dds");
+		m_Plane->SetInputLayout(m_ModelinputLayout.Get());
+		m_Plane->SetVertexShader(m_ModelvertexShader.Get());
+		m_Plane->SetPixelShader(m_ModelpixelShader.Get());
 
 		//Sampler
 		D3D11_SAMPLER_DESC samplerDesc;
@@ -665,6 +702,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "UV", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateInputLayout(vertexDesc, ARRAYSIZE(vertexDesc), &fileData[0], fileData.size(), &m_ModelinputLayout));
@@ -673,31 +711,10 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	auto instanceLoading = (createInstanceVSTask).then([this]()
 	{
 		m_instanceFuzzyGoomba = new Model();
-		m_instanceFuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", nullptr);
+		m_instanceFuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", L"Assets/Textures/Normal_Fuzzy.dds");
 		m_instanceFuzzyGoomba->SetInputLayout(m_ModelinputLayout.Get());
 		m_instanceFuzzyGoomba->SetVertexShader(m_instanceVertexShader.Get());
 		m_instanceFuzzyGoomba->SetPixelShader(m_ModelpixelShader.Get());
-	});
-
-//////////////////////////////////////////////////////////////
-//Normal Mapping
-//////////////////////////////////////////////////////////////
-	// Load shaders asynchronously.
-	auto loadNormalPSTask = DX::ReadDataAsync(L"PS_Normal.cso");
-
-	auto createNormalPSTask = loadNormalPSTask.then([this](const std::vector<byte>& fileData)
-	{
-		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreatePixelShader(&fileData[0], fileData.size(), nullptr, &m_NormalPixelShader));
-	});
-
-	auto normalLoading = (createNormalPSTask).then([this]()
-	{
-		m_Plane = new Model();
-		m_Plane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/plane.obj", L"Assets/Textures/MidBoss_Floor_Diffuse.dds", L"Assets/Textures/MidBoss_Floor_Normal.dds");
-		m_Plane->SetInputLayout(m_ModelinputLayout.Get());
-		m_Plane->SetVertexShader(m_ModelvertexShader.Get());
-		m_Plane->SetPixelShader(m_ModelpixelShader.Get());
-
 	});
 
 //////////////////////////////////////////////////////////////
@@ -772,6 +789,45 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 
 	CD3D11_BUFFER_DESC SPOT_LightConstantBufferDesc(sizeof(SPOT_LIGHT), D3D11_BIND_CONSTANT_BUFFER);
 	DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&SPOT_LightConstantBufferDesc, nullptr, &m_SPOT_LightConstantBuffer));
+
+//////////////////////////////////////////////////////////////
+//Geo Shader
+//////////////////////////////////////////////////////////////
+	auto loadGeoVSTask = DX::ReadDataAsync(L"VS_NDC.cso");
+	auto loadGeoGSTask = DX::ReadDataAsync(L"GS_NDC.cso");
+
+	auto createGeoVSTask = loadGeoVSTask.then([this](const std::vector<byte>& fileData)
+	{
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateVertexShader(&fileData[0], fileData.size(), nullptr, &m_GeoVertexShader));
+	});
+
+	auto createGeoGSTask = loadGeoGSTask.then([this](const std::vector<byte>& fileData)
+	{
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateGeometryShader(&fileData[0], fileData.size(), nullptr, &m_GeoGeometryShader));
+	});
+
+	auto createPointTask = (createGeoVSTask && createGeoGSTask).then([this]()
+	{
+		VertexPositionUVNormal point;
+		point.pos		= XMFLOAT3(0.0f, 0.0f, 0.0f);
+		point.uv		= XMFLOAT3(0.0f, 0.0f, 0.0f);
+		point.normal	= XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
+		vertexBufferData.pSysMem = &point;
+		vertexBufferData.SysMemPitch = 0;
+		vertexBufferData.SysMemSlicePitch = 0;
+		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(DX11UWA::VertexPositionUVNormal), D3D11_BIND_VERTEX_BUFFER);
+
+		m_deviceResources->GetD3DDevice()->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &m_GeoVertexBuffer);
+	});
+
+	// Once the cube is loaded, the object is ready to be rendered.
+	modelLoading.then([this]()
+	{
+		m_loadingComplete = true;
+	});
+
 }
 
 void Sample3DSceneRenderer::ReleaseDeviceDependentResources(void)

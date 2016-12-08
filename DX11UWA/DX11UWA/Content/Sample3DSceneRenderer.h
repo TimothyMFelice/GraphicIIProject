@@ -111,6 +111,13 @@ namespace DX11UWA
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_instanceConstantBuffer;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_instanceVertexShader;
 
+
+		// Geometry Shader
+		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_GeoVertexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11VertexShader>		m_GeoVertexShader;
+		Microsoft::WRL::ComPtr<ID3D11GeometryShader>	m_GeoGeometryShader;
+
+		void DrawGeoShaderObject(ID3D11DeviceContext1* context);
 	};
 }
 

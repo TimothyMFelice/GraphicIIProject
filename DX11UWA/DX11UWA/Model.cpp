@@ -129,6 +129,68 @@ bool Model::LoadNormalTexture(const ID3D11Device* device, const wchar_t * szNorm
 	return TRUE;
 }
 
+bool Model::CreateTangents(void)
+{
+	XMFLOAT3 uDirection;
+	XMFLOAT3 vDirection;
+
+	for (int k = 0; k < m_InterleavedIndices.size(); k+=3)
+	{
+		XMFLOAT3 vert0 = m_InterleavedVertices[m_InterleavedIndices[k]].pos;
+		XMFLOAT3 vert1 = m_InterleavedVertices[m_InterleavedIndices[k + 1]].pos;
+		XMFLOAT3 vert2 = m_InterleavedVertices[m_InterleavedIndices[k + 2]].pos;
+		XMFLOAT3 vertEdge0, vertEdge1;
+		vertEdge0.x = vert1.x - vert0.x;
+		vertEdge0.y = vert1.y - vert0.y;
+		vertEdge0.z = vert1.z - vert0.z;
+		vertEdge1.x = vert2.x - vert0.x;
+		vertEdge1.y = vert2.y - vert0.y;
+		vertEdge1.z = vert2.z - vert0.z;
+
+		XMFLOAT3 tex0 = m_InterleavedVertices[m_InterleavedIndices[k]].uv;
+		XMFLOAT3 tex1 = m_InterleavedVertices[m_InterleavedIndices[k + 1]].uv;
+		XMFLOAT3 tex2 = m_InterleavedVertices[m_InterleavedIndices[k + 2]].uv;
+		XMFLOAT3 texEdge0, texEdge1;
+		texEdge0.x = tex1.x - tex0.x;
+		texEdge0.y = tex1.y - tex0.y;
+		texEdge0.z = tex1.z - tex0.z;
+		texEdge1.x = tex2.x - tex0.x;
+		texEdge1.y = tex2.y - tex0.y;
+		texEdge1.z = tex2.z - tex0.z;
+
+		float ratio = 1.0f / (texEdge0.x * texEdge1.y - texEdge1.x * texEdge0.y);
+
+		uDirection = XMFLOAT3(
+			((texEdge1.y * vertEdge0.x) - (texEdge0.y * vertEdge1.x)) * ratio,
+			((texEdge1.y * vertEdge0.y) - (texEdge0.y * vertEdge1.y)) * ratio,
+			((texEdge1.y * vertEdge0.z) - (texEdge0.y * vertEdge1.z)) * ratio );
+
+		vDirection = XMFLOAT3(
+			((texEdge0.x * vertEdge1.x) - (texEdge1.x * vertEdge0.x)) * ratio,
+			((texEdge0.x * vertEdge1.y) - (texEdge1.x * vertEdge0.y)) * ratio,
+			((texEdge0.x * vertEdge1.z) - (texEdge1.x * vertEdge0.z)) * ratio);
+	}		
+	for (UINT i = 0; i < m_InterleavedVertices.size(); i++)
+	{
+		const XMFLOAT3& normal = m_InterleavedVertices[i].normal;
+
+		XMVECTOR normalNorm = XMVectorSet(normal.x, normal.y, normal.z, 0.0f);
+		normalNorm - XMVector3Normalize(normalNorm);
+
+		XMVECTOR uDirectionNorm = XMVectorSet(uDirection.x, uDirection.y, uDirection.z, 0.0f);
+		uDirectionNorm - XMVector3Normalize(uDirectionNorm);
+
+		XMVECTOR dotResult = XMVector3Dot(normalNorm, uDirectionNorm);
+		XMVECTOR tangent = uDirectionNorm - normalNorm * dotResult.m128_f32[0];
+
+		tangent = XMVector3Normalize(tangent);
+
+		XMStoreFloat4(&m_InterleavedVertices[i].tangent, tangent);
+	}
+
+	return TRUE;
+}
+
 bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName, const wchar_t * szTextureName, const wchar_t * szNormalTextureName)
 {
 	std::vector<XMFLOAT3>		m_vVertices,	 m_vTexcoords,		  m_vNormals;
@@ -212,6 +274,9 @@ bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName,
 		this->m_InterleavedIndices.push_back(i);
 	}
 
+	if (!CreateTangents())
+		return FALSE;
+
 	if (!LoadBuffers(device))
 		return FALSE;
 	
@@ -220,6 +285,7 @@ bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName,
 
 	if (!LoadNormalTexture(device, szNormalTextureName))
 		return FALSE;
+
 
 	return TRUE;
 }

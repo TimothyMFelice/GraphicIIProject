@@ -111,6 +111,14 @@
     <None Include="Assets\sphere.mtl">
       <Filter>Assets</Filter>
     </None>
+    <None Include="Assets\Objects\BattleAmbulance.obj" />
+    <None Include="Assets\Objects\cube.obj" />
+    <None Include="Assets\Objects\FuzzyGoomba.obj" />
+    <None Include="Assets\Objects\KungFu_Panda.obj" />
+    <None Include="Assets\Objects\KungFu_Panda_Eyes.obj" />
+    <None Include="Assets\Objects\plane.obj" />
+    <None Include="Assets\Objects\sphere.obj" />
+    <None Include="Assets\Objects\test pyramid.obj" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\SamplePixelShader.hlsl">
@@ -135,6 +143,12 @@
       <Filter>Content\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PS_Normal.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="GS_NDC.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VS_NDC.hlsl">
       <Filter>Content\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -193,31 +207,20 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="Assets\Objects\BattleAmbulance.obj">
-      <Filter>Assets\Objects</Filter>
-    </Object>
-    <Object Include="Assets\Objects\cube.obj">
-      <Filter>Assets\Objects</Filter>
-    </Object>
-    <Object Include="Assets\Objects\FuzzyGoomba.obj">
-      <Filter>Assets\Objects</Filter>
-    </Object>
-    <Object Include="Assets\Objects\KungFu_Panda.obj">
-      <Filter>Assets\Objects</Filter>
-    </Object>
-    <Object Include="Assets\Objects\KungFu_Panda_Eyes.obj">
-      <Filter>Assets\Objects</Filter>
-    </Object>
-    <Object Include="Assets\Objects\plane.obj">
-      <Filter>Assets\Objects</Filter>
-    </Object>
-    <Object Include="Assets\Objects\sphere.obj">
-      <Filter>Assets\Objects</Filter>
-    </Object>
-    <Object Include="Assets\Objects\test pyramid.obj">
-      <Filter>Assets\Objects</Filter>
-    </Object>
+    <Image Include="Assets\Textures\wallbrick_seamless.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\concrete_dirtywhite_wall_seamless_Normal.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Normal_Fuzzy.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\TEX_Ambulance_Normal.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Panda_Normal.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

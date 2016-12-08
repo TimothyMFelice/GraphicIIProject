@@ -41,6 +41,9 @@ private:
 	bool LoadTexture(const ID3D11Device* device, const wchar_t* szTextureName);
 	bool LoadNormalTexture(const ID3D11Device* device, const wchar_t * szNormalTextureName);
 
+	// Tangent Function
+	bool CreateTangents(void);
+
 public:
 	// Class trilogy
 	Model(void);
@@ -58,12 +61,14 @@ public:
 	inline ID3D11VertexShader* GetVertexShader(void) { return m_VertexShader.Get(); }
 	inline ID3D11PixelShader* GetPixelShader(void) { return m_PixelShader.Get(); }
 	inline ID3D11ShaderResourceView* GetShaderResourceView(void) { return m_ShaderResourceView.Get(); }
+	inline ID3D11ShaderResourceView* GetShaderResourceViewNormal(void) { return m_NormalShaderResourceView.Get(); }
 
 	inline ID3D11Buffer** GetAddressOfVertexBuffer(void) { return m_VertexBuffer.GetAddressOf(); }
 	inline ID3D11Buffer** GetAddressOfIndexBuffer(void) { return m_IndexBuffer.GetAddressOf(); }
 	inline ID3D11InputLayout** GetAddressOfInputLayout(void) { return m_inputLayout.GetAddressOf(); }
 	inline ID3D11VertexShader** GetAddressOfVertexShader(void) { return m_VertexShader.GetAddressOf(); }
 	inline ID3D11ShaderResourceView** GetAddressOfShaderResourceView(void) { return m_ShaderResourceView.GetAddressOf(); }
+	inline ID3D11ShaderResourceView** GetAddressOfShaderResourceViewNormal(void) { return m_NormalShaderResourceView.GetAddressOf(); }
 
 	inline unsigned int GetNumIndicies(void) { return m_NumIndices; }
 
