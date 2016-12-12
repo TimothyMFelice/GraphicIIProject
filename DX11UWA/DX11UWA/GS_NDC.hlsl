@@ -15,6 +15,7 @@ struct GSOutput
     float3 worldPos : WORLD_POS;
     float4 tangent : TANGENT;
     float4 biTangent : BI_TANGENT;
+    float4 campPos : CAM_POS;
 };
 
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
@@ -23,6 +24,7 @@ cbuffer ModelViewProjectionConstantBuffer : register(b0)
     matrix model;
     matrix view;
     matrix projection;
+    float4 camPos;
 };
 
 // number of vertices this geometry shader will send to the rasterizer
@@ -38,7 +40,10 @@ void main(
         element[t] = (GSOutput) 0;
 
     for (int i = 0; i < 24; ++i)
+    {
         element[i].pos = float4(input[0].pos, 1.0f);
+        element[i].campPos = camPos;
+    }
 
 
     float size = 0.125f;

@@ -78,7 +78,7 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 	}
 
 	// Update or move camera here
-	UpdateCamera(timer, 2.0f, 0.75f);
+	UpdateCamera(timer, 3.0f, 0.75f);
 
 //////////////////////////////////////////////////////////////
 //Update Models
@@ -259,10 +259,10 @@ void Sample3DSceneRenderer::DrawModel(ID3D11DeviceContext1* context, Model * mod
 	if (!model)
 		return;
 
-	ModelViewProjectionConstantBuffer newData;
-	newData.view = m_constantBufferData.view;
-	newData.projection = m_constantBufferData.projection;
+	ModelViewProjectionConstantBuffer newData = m_constantBufferData;
 	newData.model = model->GetConstBufferData().model;
+	XMVECTOR currCamPos = XMVectorSet(m_camera._41, m_camera._42, m_camera._43, 0.0f);
+	XMStoreFloat4(&newData.camPos, currCamPos);
 
 	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &newData, 0, 0, 0);
@@ -283,6 +283,7 @@ void Sample3DSceneRenderer::DrawModel(ID3D11DeviceContext1* context, Model * mod
 	// Attach the srv to the pixel shader
 	context->PSSetShaderResources(0, 1, model->GetAddressOfShaderResourceView());
 	context->PSSetShaderResources(1, 1, model->GetAddressOfShaderResourceViewNormal());
+	context->PSSetShaderResources(2, 1, model->GetAddressOfShaderResourceViewSpecular());
 
 
 	//DIR LIGHT
@@ -314,6 +315,8 @@ void Sample3DSceneRenderer::DrawInstanceModel(ID3D11DeviceContext1* context, Mod
 	InstanceModelViewProjectionConstantBuffer newData = model->GetInstanceConstBufferData();
 	newData.view = m_constantBufferData.view;
 	newData.projection = m_constantBufferData.projection;
+	XMVECTOR currCamPos = XMVectorSet(m_camera._41, m_camera._42, m_camera._43, 0.0f);
+	XMStoreFloat4(&newData.camPos, currCamPos);
 
 	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(m_instanceConstantBuffer.Get(), 0, NULL, &newData, 0, 0, 0);
@@ -333,6 +336,8 @@ void Sample3DSceneRenderer::DrawInstanceModel(ID3D11DeviceContext1* context, Mod
 	context->PSSetShader(model->GetPixelShader(), nullptr, 0);
 	// Attach the srv to the pixel shader
 	context->PSSetShaderResources(0, 1, model->GetAddressOfShaderResourceView());
+	context->PSSetShaderResources(1, 1, model->GetAddressOfShaderResourceViewNormal());
+	context->PSSetShaderResources(2, 1, model->GetAddressOfShaderResourceViewSpecular());
 
 
 	//DIR LIGHT
@@ -609,57 +614,57 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	auto modelLoading = (createModelVSTask && createModelPSTask).then([this]()
 	{
 		m_Pyramid = new Model();
-		m_Pyramid->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/test pyramid.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds");
+		m_Pyramid->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/test pyramid.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds", L"Assets/Textures/Specular_concrete.dds");
 		m_Pyramid->SetInputLayout(m_ModelinputLayout.Get());
 		m_Pyramid->SetVertexShader(m_ModelvertexShader.Get());
 		m_Pyramid->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_FuzzyGoomba = new Model();
-		m_FuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", L"Assets/Textures/Normal_Fuzzy.dds");
+		m_FuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", L"Assets/Textures/Normal_Fuzzy.dds", L"Assets/Textures/Specular_Fuzzy.dds");
 		m_FuzzyGoomba->SetInputLayout(m_ModelinputLayout.Get());
 		m_FuzzyGoomba->SetVertexShader(m_ModelvertexShader.Get());
 		m_FuzzyGoomba->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_BattleAmbulance = new Model();
-		m_BattleAmbulance->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/BattleAmbulance.obj", L"Assets/Textures/TEX_Ambulance_Diff.dds", L"Assets/Textures/TEX_Ambulance_Normal.dds");
+		m_BattleAmbulance->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/BattleAmbulance.obj", L"Assets/Textures/TEX_Ambulance_Diff.dds", L"Assets/Textures/TEX_Ambulance_Normal.dds", L"Assets/Textures/TEX_Ambulance_Spec.dds");
 		m_BattleAmbulance->SetInputLayout(m_ModelinputLayout.Get());
 		m_BattleAmbulance->SetVertexShader(m_ModelvertexShader.Get());
 		m_BattleAmbulance->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_KungFu_Panda = new Model();
-		m_KungFu_Panda->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/KungFu_Panda.obj", L"Assets/Textures/kungFu_Panda_Tex.dds", L"Assets/Textures/Panda_Normal.dds");
+		m_KungFu_Panda->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/KungFu_Panda.obj", L"Assets/Textures/kungFu_Panda_Tex.dds", L"Assets/Textures/Panda_Normal.dds", L"Assets/Textures/Specular_Panda.dds");
 		m_KungFu_Panda->SetInputLayout(m_ModelinputLayout.Get());
 		m_KungFu_Panda->SetVertexShader(m_ModelvertexShader.Get());
 		m_KungFu_Panda->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_KungFu_Panda_Eye = new Model();
-		m_KungFu_Panda_Eye->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/KungFu_Panda_Eyes.obj", L"Assets/Textures/Eye_Panda.dds", nullptr);
+		m_KungFu_Panda_Eye->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/KungFu_Panda_Eyes.obj", L"Assets/Textures/Eye_Panda.dds", nullptr, nullptr);
 		m_KungFu_Panda_Eye->SetInputLayout(m_ModelinputLayout.Get());
 		m_KungFu_Panda_Eye->SetVertexShader(m_ModelvertexShader.Get());
 		m_KungFu_Panda_Eye->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_Sphere = new Model();
-		m_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds");
+		m_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds", L"Assets/Textures/Specular_concrete.dds");
 		m_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Sphere->SetPixelShader(m_ModelpixelShader.Get());
 
 		// Light Spheres
 		m_Point_Sphere = new Model();
-		m_Point_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds");
+		m_Point_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds", L"Assets/Textures/Specular_concrete.dds");
 		m_Point_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Point_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Point_Sphere->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_Spot_Sphere = new Model();
-		m_Spot_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds");
+		m_Spot_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds", L"Assets/Textures/Specular_concrete.dds");
 		m_Spot_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Spot_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Spot_Sphere->SetPixelShader(m_ModelpixelShader.Get());
 
 		// PLANE
 		m_Plane = new Model();
-		m_Plane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/plane.obj", L"Assets/Textures/MidBoss_Floor_Diffuse.dds", L"Assets/Textures/MidBoss_Floor_Normal.dds");
+		m_Plane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/plane.obj", L"Assets/Textures/MidBoss_Floor_Diffuse.dds", L"Assets/Textures/MidBoss_Floor_Normal.dds", L"Assets/Textures/MidBoss_Floor_Spec.dds");
 		m_Plane->SetInputLayout(m_ModelinputLayout.Get());
 		m_Plane->SetVertexShader(m_ModelvertexShader.Get());
 		m_Plane->SetPixelShader(m_ModelpixelShader.Get());
@@ -711,7 +716,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	auto instanceLoading = (createInstanceVSTask).then([this]()
 	{
 		m_instanceFuzzyGoomba = new Model();
-		m_instanceFuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", L"Assets/Textures/Normal_Fuzzy.dds");
+		m_instanceFuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", L"Assets/Textures/Normal_Fuzzy.dds", L"Assets/Textures/Specular_Fuzzy.dds");
 		m_instanceFuzzyGoomba->SetInputLayout(m_ModelinputLayout.Get());
 		m_instanceFuzzyGoomba->SetVertexShader(m_instanceVertexShader.Get());
 		m_instanceFuzzyGoomba->SetPixelShader(m_ModelpixelShader.Get());
@@ -749,14 +754,14 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	{
 		// Sky Box
 		m_SkyBox = new Model();
-		m_SkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/cube.obj", L"Assets/Textures/hw_alps.dds", nullptr);
+		m_SkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/cube.obj", L"Assets/Textures/hw_alps.dds", nullptr, nullptr);
 		m_SkyBox->SetInputLayout(m_SkyBoxinputLayout.Get());
 		m_SkyBox->SetVertexShader(m_SkyBoxvertexShader.Get());
 		m_SkyBox->SetPixelShader(m_SkyBoxpixelShader.Get());
 
 		// Minimap Sky Box
 		m_miniMapSkyBox = new Model();
-		m_miniMapSkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/cube.obj", L"Assets/Textures/hw_alps.dds", nullptr);
+		m_miniMapSkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/cube.obj", L"Assets/Textures/hw_alps.dds", nullptr, nullptr);
 		m_miniMapSkyBox->SetInputLayout(m_SkyBoxinputLayout.Get());
 		m_miniMapSkyBox->SetVertexShader(m_SkyBoxvertexShader.Get());
 		m_miniMapSkyBox->SetPixelShader(m_SkyBoxpixelShader.Get());

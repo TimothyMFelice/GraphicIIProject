@@ -222,5 +222,20 @@
     <Image Include="Assets\Textures\Panda_Normal.dds">
       <Filter>Assets\Textures</Filter>
     </Image>
+    <Image Include="Assets\Textures\Specular_Fuzzy.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Specular_concrete.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\TEX_Ambulance_Spec.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Specular_Panda.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\MidBoss_Floor_Spec.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -344,12 +344,17 @@
     <Image Include="Assets\Textures\kungFu_Panda_Tex.dds" />
     <Image Include="Assets\Textures\MidBoss_Floor_Diffuse.dds" />
     <Image Include="Assets\Textures\MidBoss_Floor_Normal.dds" />
+    <Image Include="Assets\Textures\MidBoss_Floor_Spec.dds" />
     <Image Include="Assets\Textures\Normal_Fuzzy.dds" />
     <Image Include="Assets\Textures\Panda_Normal.dds" />
     <Image Include="Assets\Textures\sidewalk_seamless.dds" />
     <Image Include="Assets\Textures\SkyboxOcean.dds" />
+    <Image Include="Assets\Textures\Specular_concrete.dds" />
+    <Image Include="Assets\Textures\Specular_Fuzzy.dds" />
+    <Image Include="Assets\Textures\Specular_Panda.dds" />
     <Image Include="Assets\Textures\TEX_Ambulance_Diff.dds" />
     <Image Include="Assets\Textures\TEX_Ambulance_Normal.dds" />
+    <Image Include="Assets\Textures\TEX_Ambulance_Spec.dds" />
     <Image Include="Assets\Textures\wallbrick_seamless.dds" />
     <Image Include="Assets\Textures\woodFloor3_seamless.dds" />
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />

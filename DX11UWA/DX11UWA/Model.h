@@ -26,6 +26,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>			m_PixelShader;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_ShaderResourceView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_NormalShaderResourceView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_SpecularShaderResourceView;
 
 	std::vector<DX11UWA::VertexPositionUVNormal>		m_InterleavedVertices;
 	std::vector<unsigned int>							m_InterleavedIndices;
@@ -40,6 +41,7 @@ private:
 	bool LoadBuffers(const ID3D11Device* device);
 	bool LoadTexture(const ID3D11Device* device, const wchar_t* szTextureName);
 	bool LoadNormalTexture(const ID3D11Device* device, const wchar_t * szNormalTextureName);
+	bool LoadSepecularTexture(const ID3D11Device* device, const wchar_t * szSpecularTextureName);
 
 	// Tangent Function
 	bool CreateTangents(void);
@@ -52,7 +54,7 @@ public:
 	Model& operator=(const Model& copy);
 
 	// Public Functions
-	bool LoadOBJFromFile(const ID3D11Device* device, const char* szFileName, const wchar_t* szTextureName, const wchar_t * szNormalTextureName);
+	bool LoadOBJFromFile(const ID3D11Device* device, const char* szFileName, const wchar_t* szTextureName, const wchar_t * szNormalTextureName, const wchar_t * szSpecularTextureName);
 
 	// Accessors
 	inline ID3D11Buffer* GetVertexBuffer(void) { return m_VertexBuffer.Get(); }
@@ -69,6 +71,7 @@ public:
 	inline ID3D11VertexShader** GetAddressOfVertexShader(void) { return m_VertexShader.GetAddressOf(); }
 	inline ID3D11ShaderResourceView** GetAddressOfShaderResourceView(void) { return m_ShaderResourceView.GetAddressOf(); }
 	inline ID3D11ShaderResourceView** GetAddressOfShaderResourceViewNormal(void) { return m_NormalShaderResourceView.GetAddressOf(); }
+	inline ID3D11ShaderResourceView** GetAddressOfShaderResourceViewSpecular(void) { return m_SpecularShaderResourceView.GetAddressOf(); }
 
 	inline unsigned int GetNumIndicies(void) { return m_NumIndices; }
 

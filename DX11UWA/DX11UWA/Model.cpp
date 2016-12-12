@@ -129,6 +129,13 @@ bool Model::LoadNormalTexture(const ID3D11Device* device, const wchar_t * szNorm
 	return TRUE;
 }
 
+bool Model::LoadSepecularTexture(const ID3D11Device * device, const wchar_t * szSpecularTextureName)
+{
+	CreateDDSTextureFromFile(const_cast<ID3D11Device*>(device), szSpecularTextureName, NULL, this->m_SpecularShaderResourceView.GetAddressOf());
+
+	return TRUE;
+}
+
 bool Model::CreateTangents(void)
 {
 	XMFLOAT3 uDirection;
@@ -191,7 +198,7 @@ bool Model::CreateTangents(void)
 	return TRUE;
 }
 
-bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName, const wchar_t * szTextureName, const wchar_t * szNormalTextureName)
+bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName, const wchar_t * szTextureName, const wchar_t * szNormalTextureName, const wchar_t * szSpecularTextureName)
 {
 	std::vector<XMFLOAT3>		m_vVertices,	 m_vTexcoords,		  m_vNormals;
 	std::vector<unsigned int>	m_vVertIndicies, m_vTexcoordIndicies, m_vNormIndicies;
@@ -284,6 +291,9 @@ bool Model::LoadOBJFromFile(const ID3D11Device* device, const char * szFileName,
 		return FALSE;
 
 	if (!LoadNormalTexture(device, szNormalTextureName))
+		return FALSE;
+
+	if (!LoadSepecularTexture(device, szSpecularTextureName))
 		return FALSE;
 
 

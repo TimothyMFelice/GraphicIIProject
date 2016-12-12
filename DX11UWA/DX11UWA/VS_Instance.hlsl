@@ -4,6 +4,7 @@ cbuffer InstanceModelViewProjectionConstantBuffer : register(b0)
     matrix model[5];
     matrix view;
     matrix projection;
+    float4 camPos;
 };
 
 // Per-vertex data used as input to the vertex shader.
@@ -24,6 +25,7 @@ struct PixelShaderInput
     float3 worldPos : WORLD_POS;
     float4 tangent : TANGENT;
     float4 biTangent : BI_TANGENT;
+    float4 campPos : CAM_POS;
 };
 
 // Simple shader to do vertex processing on the GPU.
@@ -40,10 +42,12 @@ PixelShaderInput main(VertexShaderInput input, uint id : SV_InstanceID)
     output.pos = pos;
 
 	// Pass the color through without modification.
-    output.uv = input.uv;
-    output.norm = mul(input.norm, model[id]);
-    output.tangent = mul(float4(input.tangent.xyz * input.tangent.w, 0.0f), model[id]);
-    output.biTangent = mul(float4(cross(input.norm.xyz, input.tangent.xyz), 0.0f), model[id]);
+    output.uv           = input.uv;
+    output.norm         = mul(float4(input.norm,0.0f), model[id]);
+    output.tangent      = mul(float4(input.tangent.xyz, 0.0f), model[id]);
+    output.biTangent    = mul(float4(cross(input.norm.xyz, input.tangent.xyz), 0.0f), model[id]);
+
+    output.campPos = camPos;
 
     return output;
 }
