@@ -100,17 +100,17 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 
 	//Battle Ambulance
 	ModelViewProjectionConstantBuffer BattleData;
-	XMStoreFloat4x4(&BattleData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.5f, 0.5f, 0.5f), XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(5.0f, -0.6f, 5.0f)))));
+	XMStoreFloat4x4(&BattleData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.5f, 0.5f, 0.5f), XMMatrixMultiply(XMMatrixRotationY(radians), XMMatrixTranslation(5.0f, -0.6f, 10.0f)))));
 	m_BattleAmbulance->SetConstBuffer(BattleData);
 
 	//KungFu Panda
 	ModelViewProjectionConstantBuffer PandaData;
-	XMStoreFloat4x4(&PandaData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5f, 1.5f, 1.5f), XMMatrixMultiply(XMMatrixRotationY(180.0f), XMMatrixTranslation(0.0f, -0.6f, 5.0f)))));
+	XMStoreFloat4x4(&PandaData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5f, 1.5f, 1.5f), XMMatrixMultiply(XMMatrixRotationY(180.0f), XMMatrixTranslation(0.0f, -0.6f, 10.0f)))));
 	m_KungFu_Panda->SetConstBuffer(PandaData);
 
 	//KungFu Panda Eye
 	ModelViewProjectionConstantBuffer PandaEyeData;
-	XMStoreFloat4x4(&PandaEyeData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5f, 1.5f, 1.5f), XMMatrixMultiply(XMMatrixRotationY(180.0f), XMMatrixTranslation(0.0f, -0.6f, 5.0f)))));
+	XMStoreFloat4x4(&PandaEyeData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(1.5f, 1.5f, 1.5f), XMMatrixMultiply(XMMatrixRotationY(180.0f), XMMatrixTranslation(0.0f, -0.6f, 10.0f)))));
 	m_KungFu_Panda_Eye->SetConstBuffer(PandaEyeData);
 
 	//Sphere
@@ -149,8 +149,13 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 
 	// Render To Texture Plane
 	ModelViewProjectionConstantBuffer RTTPlaneData;
-	XMStoreFloat4x4(&RTTPlaneData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.5f, 0.5f, 0.5f), XMMatrixTranslation(0.0f, 5.0f, 0.0f))));
+	XMStoreFloat4x4(&RTTPlaneData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.2f, 0.2f, 0.2f), XMMatrixMultiply(XMMatrixRotationZ(3.14159f), XMMatrixMultiply(XMMatrixRotationX(1.5708f), XMMatrixTranslation(5.0f, 5.0f, 10.0f))))));
 	m_RTTPlane->SetConstBuffer(RTTPlaneData);
+
+	// Post Plane
+	ModelViewProjectionConstantBuffer PostPlaneData;
+	XMStoreFloat4x4(&PostPlaneData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.2f, 0.2f, 0.2f), XMMatrixMultiply(XMMatrixRotationZ(3.14159f), XMMatrixMultiply(XMMatrixRotationX(1.5708f), XMMatrixTranslation(-5.0f, 5.0f, 10.0f))))));
+	m_PostPlane->SetConstBuffer(PostPlaneData);
 
 	//UPDATE LIGHT
 		//Directional Light
@@ -388,13 +393,49 @@ void Sample3DSceneRenderer::DrawGeoShaderObject(ID3D11DeviceContext1 * context)
 
 	//Geo Texture
 	ID3D11ShaderResourceView* shaderResource;
-	CreateDDSTextureFromFile(m_deviceResources->GetD3DDevice(), L"Assets/Textures/wallbrick_seamless.dds", NULL, &shaderResource);
+	CreateDDSTextureFromFile(m_deviceResources->GetD3DDevice(), L"Assets/Textures/Wallbrick_Diffuse.dds", NULL, &shaderResource);
 	context->PSSetShaderResources(0, 1, &shaderResource);
 
 	context->DrawIndexedInstanced(1, 5, 0, 0, 0);
 
 	ID3D11GeometryShader* nullShader = nullptr;
 	context->GSSetShader(nullShader, nullptr, NULL);
+}
+
+void Sample3DSceneRenderer::DrawRTT(ID3D11DeviceContext1* context, Model * model)
+{
+	if (!model)
+		return;
+
+	ModelViewProjectionConstantBuffer newData;
+	newData.projection = m_constantBufferData.projection;
+	//XMStoreFloat4x4(&newData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixMultiply(XMMatrixRotationX(1.5708f), XMMatrixTranslation(5.0f, 5.f, 5.0f)))));
+	newData.view = m_constantBufferData.view;
+	newData.model = model->GetConstBufferData().model;
+	XMVECTOR currCamPos = XMVectorSet(m_camera._41, m_camera._42, m_camera._43, 0.0f);
+	XMStoreFloat4(&newData.camPos, currCamPos);
+
+	// Prepare the constant buffer to send it to the graphics device.
+	context->UpdateSubresource1(m_RTTConstantBuffer.Get(), 0, NULL, &newData, 0, 0, 0);
+	// Each vertex is one instance of the VertexPositionColor struct.
+	UINT stride = sizeof(VertexPositionUVNormal);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, model->GetAddressOfVertexBuffer(), &stride, &offset);
+	// Each index is one 16-bit unsigned integer (short).
+	context->IASetIndexBuffer(model->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context->IASetInputLayout(model->GetInputLayout());
+	// Attach our vertex shader.
+	context->VSSetShader(model->GetVertexShader(), nullptr, 0);
+	// Send the constant buffer to the graphics device.
+	context->VSSetConstantBuffers1(0, 1, m_RTTConstantBuffer.GetAddressOf(), nullptr, nullptr);
+	// Attach our pixel shader.
+	context->PSSetShader(model->GetPixelShader(), nullptr, 0);
+	// Attach the srv to the pixel shader
+	context->PSSetShaderResources(0, 1, model->GetAddressOfShaderResourceView());
+
+	// Draw the objects.
+	context->DrawIndexed(model->GetNumIndicies(), 0, 0);
 }
 
 void Sample3DSceneRenderer::SetKeyboardButtons(const char* list)
@@ -434,7 +475,7 @@ void Sample3DSceneRenderer::StopTracking(void)
 }
 
 // Renders one frame using the vertex and pixel shaders.
-void Sample3DSceneRenderer::Render(unsigned int viewport)
+void Sample3DSceneRenderer::Render()
 {
 	// Loading is asynchronous. Only draw geometry after it's loaded.
 	if (!m_loadingComplete)
@@ -443,21 +484,11 @@ void Sample3DSceneRenderer::Render(unsigned int viewport)
 	}
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
+	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_camera))));
+	//SkyBox
+	DrawModel(context, m_SkyBox);
+	context->ClearDepthStencilView(m_deviceResources->GetRTTDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	if (viewport == 0)
-	{
-		XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_camera))));
-		//SkyBox
-		DrawModel(context, m_SkyBox);
-		context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	}
-	else if (viewport == 1)
-	{
-		XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixMultiply(XMMatrixRotationX(1.5708f), XMMatrixTranslation(0.0f, 15.0f, 0.0f)))));
-		//Sky Box
-		DrawModel(context, m_miniMapSkyBox);
-		context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	}
 	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_constantBufferData, 0, 0, 0);
 	// Each vertex is one instance of the VertexPositionColor struct.
@@ -477,9 +508,10 @@ void Sample3DSceneRenderer::Render(unsigned int viewport)
 	// Set Sampler State
 	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 	context->PSSetSamplers(1, 1, m_skyboxSamplerSate.GetAddressOf());
+	context->PSSetSamplers(2, 1, m_SamplerSate2.GetAddressOf());
 	// Draw the objects.
 	context->DrawIndexed(m_indexCount, 0, 0);
-
+	
 	//////////////////////////////////////////////////////////////
 	//MODELS
 	//////////////////////////////////////////////////////////////
@@ -500,11 +532,110 @@ void Sample3DSceneRenderer::Render(unsigned int viewport)
 	//Geometry
 	//////////////////////////////////////////////////////////////
 	DrawGeoShaderObject(context);
+}
+
+// Renders one frame using the vertex and pixel shaders.
+void Sample3DSceneRenderer::Render2()
+{
+	// Loading is asynchronous. Only draw geometry after it's loaded.
+	if (!m_loadingComplete)
+	{
+		return;
+	}
+
+	auto context = m_deviceResources->GetD3DDeviceContext();
+
+	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_camera))));
+	//SkyBox
+	DrawModel(context, m_SkyBox);
+	context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+	context->PSSetSamplers(1, 1, m_skyboxSamplerSate.GetAddressOf());
+	context->PSSetSamplers(2, 1, m_SamplerSate2.GetAddressOf());
+
+	//////////////////////////////////////////////////////////////
+	//MODELS
+	//////////////////////////////////////////////////////////////
+	DrawModel(context, m_Plane);
+	DrawModel(context, m_Pyramid);
+	DrawModel(context, m_FuzzyGoomba);
+	DrawModel(context, m_BattleAmbulance);
+	DrawModel(context, m_KungFu_Panda);
+	DrawModel(context, m_KungFu_Panda_Eye);
+	DrawModel(context, m_Sphere);
+	// Lighting Spheres
+	DrawModel(context, m_Point_Sphere);
+	DrawModel(context, m_Spot_Sphere);
+
+	DrawInstanceModel(context, m_instanceFuzzyGoomba);
+
+	//////////////////////////////////////////////////////////////
+	//Geometry
+	//////////////////////////////////////////////////////////////
+	DrawGeoShaderObject(context);
 
 	//////////////////////////////////////////////////////////////
 	//Render To Texture
 	//////////////////////////////////////////////////////////////
-	DrawModel(context, m_RTTPlane);
+	m_RTTPlane->SetShaderResourceView(m_deviceResources->GetRTTShaderResourceView());
+	DrawRTT(context, m_RTTPlane);
+
+	m_PostPlane->SetShaderResourceView(m_deviceResources->GetRTTShaderResourceView());
+	DrawRTT(context, m_PostPlane);
+
+	ID3D11ShaderResourceView *nullShader = { NULL };
+	context->PSSetShaderResources(0, 1, &nullShader);
+}
+
+// Renders one frame using the vertex and pixel shaders.
+void Sample3DSceneRenderer::RenderMini()
+{// Loading is asynchronous. Only draw geometry after it's loaded.
+	if (!m_loadingComplete)
+	{
+		return;
+	}
+
+	auto context = m_deviceResources->GetD3DDeviceContext();
+
+	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_camera))));
+	//SkyBox
+	DrawModel(context, m_SkyBox);
+	context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+	context->PSSetSamplers(1, 1, m_skyboxSamplerSate.GetAddressOf());
+	context->PSSetSamplers(2, 1, m_SamplerSate2.GetAddressOf());
+
+	//////////////////////////////////////////////////////////////
+	//MODELS
+	//////////////////////////////////////////////////////////////
+	DrawModel(context, m_Plane);
+	DrawModel(context, m_Pyramid);
+	DrawModel(context, m_FuzzyGoomba);
+	DrawModel(context, m_BattleAmbulance);
+	DrawModel(context, m_KungFu_Panda);
+	DrawModel(context, m_KungFu_Panda_Eye);
+	DrawModel(context, m_Sphere);
+	// Lighting Spheres
+	DrawModel(context, m_Point_Sphere);
+	DrawModel(context, m_Spot_Sphere);
+
+	DrawInstanceModel(context, m_instanceFuzzyGoomba);
+
+	//////////////////////////////////////////////////////////////
+	//Geometry
+	//////////////////////////////////////////////////////////////
+	DrawGeoShaderObject(context);
+
+	//////////////////////////////////////////////////////////////
+	//Render To Texture
+	//////////////////////////////////////////////////////////////
+	m_RTTPlane->SetShaderResourceView(m_deviceResources->GetRTTShaderResourceView());
+	DrawRTT(context, m_RTTPlane);
+
+	ID3D11ShaderResourceView *nullShader = { NULL };
+	context->PSSetShaderResources(0, 1, &nullShader);
 }
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
@@ -627,57 +758,57 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	auto modelLoading = (createModelVSTask && createModelPSTask).then([this]()
 	{
 		m_Pyramid = new Model();
-		m_Pyramid->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/test pyramid.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds", L"Assets/Textures/Specular_concrete.dds");
+		m_Pyramid->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Pyramid.obj", L"Assets/Textures/Concrete_Diffuse.dds", L"Assets/Textures/Concrete_Normal.dds", L"Assets/Textures/Concrete_Specular.dds");
 		m_Pyramid->SetInputLayout(m_ModelinputLayout.Get());
 		m_Pyramid->SetVertexShader(m_ModelvertexShader.Get());
 		m_Pyramid->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_FuzzyGoomba = new Model();
-		m_FuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", L"Assets/Textures/Normal_Fuzzy.dds", L"Assets/Textures/Specular_Fuzzy.dds");
+		m_FuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/FuzzyGoomba.obj", L"Assets/Textures/Fuzzy_Diffuse.dds", L"Assets/Textures/Fuzzy_Normal.dds", L"Assets/Textures/Fuzzy_Specular.dds");
 		m_FuzzyGoomba->SetInputLayout(m_ModelinputLayout.Get());
 		m_FuzzyGoomba->SetVertexShader(m_ModelvertexShader.Get());
 		m_FuzzyGoomba->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_BattleAmbulance = new Model();
-		m_BattleAmbulance->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/BattleAmbulance.obj", L"Assets/Textures/TEX_Ambulance_Diff.dds", L"Assets/Textures/TEX_Ambulance_Normal.dds", L"Assets/Textures/TEX_Ambulance_Spec.dds");
+		m_BattleAmbulance->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/BattleAmbulance.obj", L"Assets/Textures/Ambulance_Diffuse.dds", L"Assets/Textures/Ambulance_Normal.dds", L"Assets/Textures/Ambulance_Specular.dds");
 		m_BattleAmbulance->SetInputLayout(m_ModelinputLayout.Get());
 		m_BattleAmbulance->SetVertexShader(m_ModelvertexShader.Get());
 		m_BattleAmbulance->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_KungFu_Panda = new Model();
-		m_KungFu_Panda->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/KungFu_Panda.obj", L"Assets/Textures/kungFu_Panda_Tex.dds", L"Assets/Textures/Panda_Normal.dds", L"Assets/Textures/Specular_Panda.dds");
+		m_KungFu_Panda->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/KungFu_Panda.obj", L"Assets/Textures/Panda_Diffuse.dds", L"Assets/Textures/Panda_Normal.dds", L"Assets/Textures/Panda_Specular.dds");
 		m_KungFu_Panda->SetInputLayout(m_ModelinputLayout.Get());
 		m_KungFu_Panda->SetVertexShader(m_ModelvertexShader.Get());
 		m_KungFu_Panda->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_KungFu_Panda_Eye = new Model();
-		m_KungFu_Panda_Eye->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/KungFu_Panda_Eyes.obj", L"Assets/Textures/Eye_Panda.dds", nullptr, nullptr);
+		m_KungFu_Panda_Eye->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/KungFu_Panda_Eyes.obj", L"Assets/Textures/Panda_Eye_Diffuse.dds", nullptr, nullptr);
 		m_KungFu_Panda_Eye->SetInputLayout(m_ModelinputLayout.Get());
 		m_KungFu_Panda_Eye->SetVertexShader(m_ModelvertexShader.Get());
 		m_KungFu_Panda_Eye->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_Sphere = new Model();
-		m_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds", L"Assets/Textures/Specular_concrete.dds");
+		m_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Sphere.obj", L"Assets/Textures/Concrete_Diffuse.dds", L"Assets/Textures/Concrete_Normal.dds", L"Assets/Textures/Concrete_Specular.dds");
 		m_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Sphere->SetPixelShader(m_ModelpixelShader.Get());
 
 		// Light Spheres
 		m_Point_Sphere = new Model();
-		m_Point_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds", L"Assets/Textures/Specular_concrete.dds");
+		m_Point_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Sphere.obj", L"Assets/Textures/Concrete_Diffuse.dds", L"Assets/Textures/Concrete_Normal.dds", L"Assets/Textures/Concrete_Specular.dds");
 		m_Point_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Point_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Point_Sphere->SetPixelShader(m_ModelpixelShader.Get());
 
 		m_Spot_Sphere = new Model();
-		m_Spot_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/sphere.obj", L"Assets/Textures/concrete_dirtywhite_wall_seamless.dds", L"Assets/Textures/concrete_dirtywhite_wall_seamless_Normal.dds", L"Assets/Textures/Specular_concrete.dds");
+		m_Spot_Sphere->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Sphere.obj", L"Assets/Textures/Concrete_Diffuse.dds", L"Assets/Textures/Concrete_Normal.dds", L"Assets/Textures/Concrete_Specular.dds");
 		m_Spot_Sphere->SetInputLayout(m_ModelinputLayout.Get());
 		m_Spot_Sphere->SetVertexShader(m_ModelvertexShader.Get());
 		m_Spot_Sphere->SetPixelShader(m_ModelpixelShader.Get());
 
 		// PLANE
 		m_Plane = new Model();
-		m_Plane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/plane.obj", L"Assets/Textures/MidBoss_Floor_Diffuse.dds", L"Assets/Textures/MidBoss_Floor_Normal.dds", L"Assets/Textures/MidBoss_Floor_Spec.dds");
+		m_Plane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Plane.obj", L"Assets/Textures/MidBoss_Floor_Diffuse.dds", L"Assets/Textures/MidBoss_Floor_Normal.dds", L"Assets/Textures/MidBoss_Floor_Specular.dds");
 		m_Plane->SetInputLayout(m_ModelinputLayout.Get());
 		m_Plane->SetVertexShader(m_ModelvertexShader.Get());
 		m_Plane->SetPixelShader(m_ModelpixelShader.Get());
@@ -729,7 +860,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	auto instanceLoading = (createInstanceVSTask).then([this]()
 	{
 		m_instanceFuzzyGoomba = new Model();
-		m_instanceFuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/FuzzyGoomba.obj", L"Assets/Textures/Diffuse_Fuzzy.dds", L"Assets/Textures/Normal_Fuzzy.dds", L"Assets/Textures/Specular_Fuzzy.dds");
+		m_instanceFuzzyGoomba->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/FuzzyGoomba.obj", L"Assets/Textures/Fuzzy_Diffuse.dds", L"Assets/Textures/Fuzzy_Normal.dds", L"Assets/Textures/Fuzzy_Specular.dds");
 		m_instanceFuzzyGoomba->SetInputLayout(m_ModelinputLayout.Get());
 		m_instanceFuzzyGoomba->SetVertexShader(m_instanceVertexShader.Get());
 		m_instanceFuzzyGoomba->SetPixelShader(m_ModelpixelShader.Get());
@@ -767,14 +898,14 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	{
 		// Sky Box
 		m_SkyBox = new Model();
-		m_SkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/cube.obj", L"Assets/Textures/hw_alps.dds", nullptr, nullptr);
+		m_SkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Cube.obj", L"Assets/Textures/Skybox_Alps.dds", nullptr, nullptr);
 		m_SkyBox->SetInputLayout(m_SkyBoxinputLayout.Get());
 		m_SkyBox->SetVertexShader(m_SkyBoxvertexShader.Get());
 		m_SkyBox->SetPixelShader(m_SkyBoxpixelShader.Get());
 
 		// Minimap Sky Box
 		m_miniMapSkyBox = new Model();
-		m_miniMapSkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/cube.obj", L"Assets/Textures/hw_alps.dds", nullptr, nullptr);
+		m_miniMapSkyBox->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Cube.obj", L"Assets/Textures/Skybox_Alps.dds", nullptr, nullptr);
 		m_miniMapSkyBox->SetInputLayout(m_SkyBoxinputLayout.Get());
 		m_miniMapSkyBox->SetVertexShader(m_SkyBoxvertexShader.Get());
 		m_miniMapSkyBox->SetPixelShader(m_SkyBoxpixelShader.Get());
@@ -866,19 +997,62 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 	auto createRTTPSTask = loadRTTPSTask.then([this](const std::vector<byte>& fileData)
 	{
 		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreatePixelShader(&fileData[0], fileData.size(), nullptr, &m_RTTPixelShader));
+
+		CD3D11_BUFFER_DESC constantBufferDesc(sizeof(ModelViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&constantBufferDesc, nullptr, &m_RTTConstantBuffer));
 	});
 
 	auto rttLoading = (createRTTVSTask && createRTTPSTask).then([this]()
 	{
 		// PLANE
 		m_RTTPlane = new Model();
-		m_RTTPlane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Objects/plane.obj", nullptr, nullptr, nullptr);
-		m_RTTPlane->SetInputLayout(m_ModelinputLayout.Get());
-		m_RTTPlane->SetVertexShader(m_ModelvertexShader.Get());
-		m_RTTPlane->SetPixelShader(m_ModelpixelShader.Get());
+		m_RTTPlane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Plane.obj", L"Assets/Textures/Concrete_Diffuse.dds", nullptr, nullptr);
+		m_RTTPlane->SetInputLayout(m_RTTInputLayout.Get());
+		m_RTTPlane->SetVertexShader(m_RTTVertexShader.Get());
+		m_RTTPlane->SetPixelShader(m_RTTPixelShader.Get());
 
 		//Sampler
-	/*	D3D11_SAMPLER_DESC samplerDesc;
+		D3D11_SAMPLER_DESC samplerDesc;
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.MipLODBias = 0.0f;
+		samplerDesc.MaxAnisotropy = 1;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		samplerDesc.BorderColor[0] = 0.0f;
+		samplerDesc.BorderColor[1] = 0.0f;
+		samplerDesc.BorderColor[2] = 0.0f;
+		samplerDesc.BorderColor[3] = 0.0f;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		m_deviceResources->GetD3DDevice()->CreateSamplerState(&samplerDesc, &m_SamplerSate2);
+	});
+
+//////////////////////////////////////////////////////////////
+// Post Process
+//////////////////////////////////////////////////////////////
+	// Load shaders asynchronously.
+	auto loadPostPSTask = DX::ReadDataAsync(L"PS_Post.cso");
+
+	// After the pixel shader file is loaded, create the shader and constant buffer.
+	auto createPostPSTask = loadPostPSTask.then([this](const std::vector<byte>& fileData)
+	{
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreatePixelShader(&fileData[0], fileData.size(), nullptr, &m_PostPixelShader));
+	});
+
+	auto postLoading = (createPostPSTask).then([this]()
+	{
+		// PLANE
+		m_PostPlane = new Model();
+		m_PostPlane->LoadOBJFromFile(m_deviceResources->GetD3DDevice(), "Assets/Models/Plane.obj", L"Assets/Textures/Concrete_Diffuse.dds", nullptr, nullptr);
+		m_PostPlane->SetInputLayout(m_RTTInputLayout.Get());
+		m_PostPlane->SetVertexShader(m_RTTVertexShader.Get());
+		m_PostPlane->SetPixelShader(m_PostPixelShader.Get());
+
+		//Sampler
+		/*D3D11_SAMPLER_DESC samplerDesc;
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -895,8 +1069,6 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources(void)
 
 		m_deviceResources->GetD3DDevice()->CreateSamplerState(&samplerDesc, &m_samplerState);*/
 	});
-
-
 
 
 	// Once the cube is loaded, the object is ready to be rendered.

@@ -380,6 +380,40 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
 			)
 		);
 
+
+	// Render To Texture
+	D3D11_TEXTURE2D_DESC1 textureDesc;
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+
+	// Texture
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+	textureDesc.Width = m_outputSize.Width;
+	textureDesc.Height = m_outputSize.Height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+	m_d3dDevice->CreateTexture2D1(&textureDesc, NULL, &m_RTTTexture);
+
+	//// Render Target
+	renderTargetViewDesc.Format = textureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+	m_d3dDevice->CreateRenderTargetView1(m_RTTTexture, nullptr, &m_RTTRenderTargetView);
+
+	// Shader Resource View
+	shaderResourceViewDesc.Format = textureDesc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	m_d3dDevice->CreateShaderResourceView(m_RTTTexture, nullptr, &m_RTTShaderResourceView);
+
+
 	// Create a depth stencil view for use with 3D rendering if needed.
 	CD3D11_TEXTURE2D_DESC1 depthStencilDesc(
 		DXGI_FORMAT_D24_UNORM_S8_UINT, 
@@ -407,6 +441,32 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
 			&m_d3dDepthStencilView
 			)
 		);
+
+	CD3D11_TEXTURE2D_DESC1 depthStencilDesc1(
+		DXGI_FORMAT_D24_UNORM_S8_UINT,
+		lround(m_outputSize.Width),
+		lround(m_outputSize.Height),
+		1, // This depth stencil view has only one texture.
+		1, // Use a single mipmap level.
+		D3D11_BIND_DEPTH_STENCIL
+	);
+	ComPtr<ID3D11Texture2D1> depthStencil1;
+	DX::ThrowIfFailed(
+		m_d3dDevice->CreateTexture2D1(
+			&depthStencilDesc1,
+			nullptr,
+			&depthStencil1
+		)
+	);
+
+	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc1(D3D11_DSV_DIMENSION_TEXTURE2D);
+	DX::ThrowIfFailed(
+		m_d3dDevice->CreateDepthStencilView(
+			depthStencil1.Get(),
+			&depthStencilViewDesc1,
+			&m_RTTDepthStencilView
+		)
+	);
 	
 	// Set the 3D rendering viewport to target the entire window.
 	m_screenViewport = CD3D11_VIEWPORT(

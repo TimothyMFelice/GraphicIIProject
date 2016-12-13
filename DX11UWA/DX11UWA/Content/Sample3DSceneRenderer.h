@@ -17,7 +17,9 @@ namespace DX11UWA
 		void CreateWindowSizeDependentResources(void);
 		void ReleaseDeviceDependentResources(void);
 		void Update(DX::StepTimer const& timer);
-		void Render(unsigned int viewport);
+		void Render();
+		void Render2(); 
+		void RenderMini();
 		void StartTracking(void);
 		void TrackingUpdate(float positionX);
 		void StopTracking(void);
@@ -40,6 +42,7 @@ namespace DX11UWA
 		// SamplerState
 		Microsoft::WRL::ComPtr<ID3D11SamplerState>			m_samplerState;
 		Microsoft::WRL::ComPtr<ID3D11SamplerState>			m_skyboxSamplerSate;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState>			m_SamplerSate2;
 
 		// DIR Lighting Stuff
 		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_DIR_LightConstantBuffer;
@@ -112,13 +115,15 @@ namespace DX11UWA
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_instanceVertexShader;
 
 		// Render To Texture
-		Model*											m_RTTPlane;
-		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_RTTConstantBuffer;
-		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_RTTVertexBuffer;
-		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_RTTIndexBuffer;
-		Microsoft::WRL::ComPtr<ID3D11InputLayout>		m_RTTInputLayout;
-		Microsoft::WRL::ComPtr<ID3D11VertexShader>		m_RTTVertexShader;
-		Microsoft::WRL::ComPtr<ID3D11PixelShader>		m_RTTPixelShader;
+		Model*												m_RTTPlane;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>				m_RTTConstantBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>				m_RTTVertexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>				m_RTTIndexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_RTTInputLayout;
+		Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_RTTVertexShader;
+		Microsoft::WRL::ComPtr<ID3D11PixelShader>			m_RTTPixelShader;
+
+		void DrawRTT(ID3D11DeviceContext1* context, Model * model);
 
 		// Geometry Shader
 		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_GeoVertexBuffer;
@@ -126,6 +131,12 @@ namespace DX11UWA
 		Microsoft::WRL::ComPtr<ID3D11GeometryShader>	m_GeoGeometryShader;
 
 		void DrawGeoShaderObject(ID3D11DeviceContext1* context);
+
+		// Post Shader
+		Model*	m_PostPlane;
+		Microsoft::WRL::ComPtr<ID3D11PixelShader>			m_PostPixelShader;
+
+
 	};
 }
 

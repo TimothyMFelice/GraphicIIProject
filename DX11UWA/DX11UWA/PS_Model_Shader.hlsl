@@ -48,7 +48,7 @@ cbuffer SPOT_LIGHT : register(b2)
 float4 specularFormula(float3 _lightPos, float3 _camPos, float3 _surfacePos, float3 _normal, float4 _specColor)
 {
     float3 toCamVec    = normalize(_camPos - _surfacePos);
-    float3 toLightVec  = normalize(_lightPos = _surfacePos);
+    float3 toLightVec  = normalize(_lightPos - _surfacePos);
     float3 reflectVec  = normalize(reflect(-toLightVec, normalize(_normal)));
     float specPow      = saturate(dot(reflectVec, toCamVec));
     specPow = pow(specPow, 16);
@@ -87,7 +87,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float4 pointSpec = specularFormula(point_pos.xyz, input.campPos.xyz, input.worldPos, newNormal.xyz, point_color);
 	float3 pointLightDir = normalize(point_pos.xyz - input.worldPos);
     float pointLightRatio = saturate(dot(pointLightDir, newNormal));
-    float4 pointResult = (pointLightRatio * point_color * baseColor) + (pointSpec * specColor.x);
+    float4 pointResult = (pointLightRatio * point_color * baseColor) + (pointSpec);
     float pointAttenuation = 1.0f - saturate(length(point_pos.xyz - input.worldPos) / point_radius);
     pointAttenuation = pointAttenuation * pointAttenuation;
 
@@ -97,7 +97,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float spotLightSurfaceRatio = saturate(dot(-spotLightDir, spot_coneDir.xyz));
     float spotLightFactor = (spotLightSurfaceRatio > spot_coneRatio.x) ? 1 : 0;
     float spotLightRatio = saturate(dot(spotLightDir, newNormal));
-    float4 spotResult = (spotLightFactor * spotLightRatio * spot_color * baseColor) + (spotSpec * specColor.x);
+    float4 spotResult = (spotLightFactor * spotLightRatio * spot_color * baseColor) + (spotSpec);
     float spotAttenuation = saturate((spot_InnerRatio.x - spotLightSurfaceRatio) / (spot_InnerRatio.x - spot_OuterRatio.x));
     spotAttenuation = spotAttenuation * spotAttenuation;
 

@@ -70,22 +70,28 @@ bool DX11UWAMain::Render(void)
 	context->RSSetViewports(1, &viewport);
 
 	// Reset render targets to the screen.
+	ID3D11RenderTargetView *const targets1[1] = { m_deviceResources->GetRTTRenderTargetView() };
+	context->OMSetRenderTargets(1, targets1, m_deviceResources->GetRTTDepthStencilView());
+	// Clear the back buffer and depth stencil view.
+	context->ClearRenderTargetView(m_deviceResources->GetRTTRenderTargetView(), DirectX::Colors::CornflowerBlue);
+	context->ClearDepthStencilView(m_deviceResources->GetRTTDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//Render
+	m_sceneRenderer->Render();
+
+	// Reset render targets to the screen.
 	ID3D11RenderTargetView *const targets[1] = { m_deviceResources->GetBackBufferRenderTargetView() };
 	context->OMSetRenderTargets(1, targets, m_deviceResources->GetDepthStencilView());
-
 	// Clear the back buffer and depth stencil view.
 	context->ClearRenderTargetView(m_deviceResources->GetBackBufferRenderTargetView(), DirectX::Colors::CornflowerBlue);
 	context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	// Render the scene objects.
-	// TODO: Replace this with your app's content rendering functions.
-	m_sceneRenderer->Render(0);
+	//Render
+	m_sceneRenderer->Render2();
 
 	// Reset the minimapviewport to target the whole screen.
 	auto minimapviewport = m_deviceResources->GetMiniMapViewport();
 	context->RSSetViewports(1, &minimapviewport);
 	context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	m_sceneRenderer->Render(1);
+	m_sceneRenderer->RenderMini();
 
 	m_fpsTextRenderer->Render();
 

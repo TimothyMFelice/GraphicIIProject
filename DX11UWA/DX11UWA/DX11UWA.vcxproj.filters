@@ -26,11 +26,11 @@
     <Filter Include="Common\Source">
       <UniqueIdentifier>{6ce5511b-6e37-49a1-8d5e-bfa27029cc93}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Assets\Objects">
-      <UniqueIdentifier>{685a3685-4d2e-4e74-9e76-5740739011e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Assets\Textures">
       <UniqueIdentifier>{607d72a6-6c42-4410-88f7-04c096a23e06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Models">
+      <UniqueIdentifier>{e3a420b9-1e91-4aea-af9d-f56f45e8454e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -111,14 +111,60 @@
     <None Include="Assets\sphere.mtl">
       <Filter>Assets</Filter>
     </None>
-    <None Include="Assets\Objects\BattleAmbulance.obj" />
-    <None Include="Assets\Objects\cube.obj" />
-    <None Include="Assets\Objects\FuzzyGoomba.obj" />
-    <None Include="Assets\Objects\KungFu_Panda.obj" />
-    <None Include="Assets\Objects\KungFu_Panda_Eyes.obj" />
-    <None Include="Assets\Objects\plane.obj" />
-    <None Include="Assets\Objects\sphere.obj" />
-    <None Include="Assets\Objects\test pyramid.obj" />
+    <None Include="Assets\Textures\Ambulance_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Ambulance_Normal.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Ambulance_Specular.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Concrete_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Concrete_Normal.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Concrete_Specular.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Fuzzy_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Fuzzy_Normal.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Fuzzy_Specular.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\MidBoss_Floor_Specular.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Panda_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Panda_Eye_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Panda_Specular.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Sidewalk_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\SkyBox_Alps.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Skybox_Ocean.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\Wallbrick_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
+    <None Include="Assets\Textures\WoodFloor_Diffuse.dds">
+      <Filter>Assets\Textures</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\SamplePixelShader.hlsl">
@@ -157,41 +203,11 @@
     <FxCompile Include="PS_RTT.hlsl">
       <Filter>Content\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PS_Post.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Assets\Textures\concrete_dirtywhite_wall_seamless.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Diffuse_Fuzzy.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Eye_Panda.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\hw_alps.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\kungFu_Panda_Tex.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\MidBoss_Floor_Diffuse.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\MidBoss_Floor_Normal.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\sidewalk_seamless.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\SkyboxOcean.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\TEX_Ambulance_Diff.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\woodFloor3_seamless.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
@@ -213,35 +229,40 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Assets\Textures\wallbrick_seamless.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\concrete_dirtywhite_wall_seamless_Normal.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Normal_Fuzzy.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\TEX_Ambulance_Normal.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
     <Image Include="Assets\Textures\Panda_Normal.dds">
       <Filter>Assets\Textures</Filter>
     </Image>
-    <Image Include="Assets\Textures\Specular_Fuzzy.dds">
+    <Image Include="Assets\Textures\MidBoss_Floor_Normal.dds">
       <Filter>Assets\Textures</Filter>
     </Image>
-    <Image Include="Assets\Textures\Specular_concrete.dds">
+    <Image Include="Assets\Textures\MidBoss_Floor_Diffuse.dds">
       <Filter>Assets\Textures</Filter>
     </Image>
-    <Image Include="Assets\Textures\TEX_Ambulance_Spec.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Specular_Panda.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\MidBoss_Floor_Spec.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Assets\Models\BattleAmbulance.obj">
+      <Filter>Assets\Models</Filter>
+    </Object>
+    <Object Include="Assets\Models\Cube.obj">
+      <Filter>Assets\Models</Filter>
+    </Object>
+    <Object Include="Assets\Models\FuzzyGoomba.obj">
+      <Filter>Assets\Models</Filter>
+    </Object>
+    <Object Include="Assets\Models\KungFu_Panda.obj">
+      <Filter>Assets\Models</Filter>
+    </Object>
+    <Object Include="Assets\Models\KungFu_Panda_Eyes.obj">
+      <Filter>Assets\Models</Filter>
+    </Object>
+    <Object Include="Assets\Models\Plane.obj">
+      <Filter>Assets\Models</Filter>
+    </Object>
+    <Object Include="Assets\Models\Pyramid.obj">
+      <Filter>Assets\Models</Filter>
+    </Object>
+    <Object Include="Assets\Models\Sphere.obj">
+      <Filter>Assets\Models</Filter>
+    </Object>
   </ItemGroup>
 </Project>
