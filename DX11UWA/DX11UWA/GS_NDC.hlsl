@@ -19,9 +19,9 @@ struct GSOutput
 };
 
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
-cbuffer ModelViewProjectionConstantBuffer : register(b0)
+cbuffer InstanceModelViewProjectionConstantBuffer : register(b0)
 {
-    matrix model;
+    matrix model[5];
     matrix view;
     matrix projection;
     float4 camPos;
@@ -29,11 +29,11 @@ cbuffer ModelViewProjectionConstantBuffer : register(b0)
 
 // number of vertices this geometry shader will send to the rasterizer
 [maxvertexcount(24)]
+// instance things
+[instance(5)]
 // main function for the geometry shader
-void main(
-	point GSInput input[1],             // line input[2]. triangle Input[3]
-	inout TriangleStream< GSOutput > output
-)
+// line input[2]. triangle Input[3]
+void main(point GSInput input[1], inout TriangleStream< GSOutput > output, uint id : SV_GSInstanceID)
 {
     GSOutput element[24];
     for (int t = 0; t < 24; ++t)
@@ -183,7 +183,7 @@ void main(
     for (int k = 0; k < 24; ++k)
     {
         float4 tmp = float4(element[k].pos);
-        tmp = mul(tmp, model);
+        tmp = mul(tmp, model[id]);
         //element[k].worldPos = tmp;
         tmp = mul(tmp, view);
         tmp = mul(tmp, projection);

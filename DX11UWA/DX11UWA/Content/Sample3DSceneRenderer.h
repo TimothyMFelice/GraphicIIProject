@@ -111,6 +111,14 @@ namespace DX11UWA
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_instanceConstantBuffer;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_instanceVertexShader;
 
+		// Render To Texture
+		Model*											m_RTTPlane;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_RTTConstantBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_RTTVertexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_RTTIndexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11InputLayout>		m_RTTInputLayout;
+		Microsoft::WRL::ComPtr<ID3D11VertexShader>		m_RTTVertexShader;
+		Microsoft::WRL::ComPtr<ID3D11PixelShader>		m_RTTPixelShader;
 
 		// Geometry Shader
 		Microsoft::WRL::ComPtr<ID3D11Buffer>			m_GeoVertexBuffer;
